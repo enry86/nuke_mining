@@ -33,8 +33,20 @@ distinguish the typical "fingerprint" of a nuclear explosion. This can be
 achieved analyzing the frequency of certain values in the gas concentration
 correlated to explosion events.
 
-Furthermore is possible to find different clusters which can group the 
-datapoints by different kind of explosions.
+The winner of the 2008 contest provided a solution based on a technique called
+random decision tree, which is described in the paper "Is random model better?
+On its accuracy and efficiency" by Wei Fan et al. 2003 reachable at 
+http://www1.cs.columbia.edu/~wfan/PAPERS/ICDM03rdt.pdf
+
+This approach is about the construction of N different decision trees, through
+the random picking of feature to be evaluated in each node.
+Some slides describing the application of this technique to this problem are
+here: http://www1.cs.columbia.edu/~wfan/PPT/ICDM08Contest.ppt
+
+We are interested in providing our implementation of this approach, since the
+code of their solution is not publicly available. 
+
+
 
 \section{Project Plan}
 The first phase of the project will be dedicated to analyze the data in 
@@ -51,5 +63,8 @@ kind of explosions.
 We will anyway look for some other larger dataset, possibly some sampling 
 over the last decades, in order to use and test our classifier with real 
 historical data. 
+
+Furthermore is possible to find different clusters which can group the 
+datapoints by different kind of explosions.
 
 \end{document}
