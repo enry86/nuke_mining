@@ -1,0 +1,55 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[italian]{babel}
+\usepackage[latin1]{inputenc}
+
+\title{Data Mining project proposal:\\
+Radioxenon monitoring for verification of the Comprehensive nuclear test ban
+treaty}
+\author{Gasparella Luca, Sartori Enrico}
+\date{A.y. 2008/2009}
+
+\begin{document}
+\maketitle
+\section{Problem Description}
+The project we want to develop has been proposed as competition in the
+IEEE International conference on Data Mining in 2008, its objective is 
+to train a classifier able to find the evidence of a nuclear weapon test,
+analyzing the concentration of some radioactive noble gas in the atmosphere.
+The relative combination of these gas concentration can give a fingerprint
+of the generating source (power plants, medical isotopes or different kind
+of explosions).
+The website containing the contest description is 
+http://www.cs.uu.nl/groups/ADA/icdm08cup/index.html
+
+The dataset is the catalog of four isotopes concentration levels collected 
+from different stations. A training dataset, which includes the source of
+the gas concentrations (Background or Background + Explosion), is provided
+in order to train the classifier, along with a testing dataset, containing 
+only the concentration levels.
+
+\section{Solution Approach}
+The solution will be about constructing a reliable classifier, able to 
+distinguish the typical "fingerprint" of a nuclear explosion. This can be
+achieved analyzing the frequency of certain values in the gas concentration
+correlated to explosion events.
+
+Furthermore is possible to find different clusters which can group the 
+datapoints by different kind of explosions.
+
+\section{Project Plan}
+The first phase of the project will be dedicated to analyze the data in 
+order to retrieve from the dataset the necessary informations over the
+gas concentration relative to an explosion.
+
+These informations are needed in order to train the classifier, possibly
+tuned for managing the differences between the data collected by the 
+different stations.
+
+Then is possible to develop a clustering strategy for finding the different
+kind of explosions. 
+
+We will anyway look for some other larger dataset, possibly some sampling 
+over the last decades, in order to use and test our classifier with real 
+historical data. 
+
+\end{document}
