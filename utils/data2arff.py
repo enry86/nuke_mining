@@ -16,6 +16,8 @@ out.write('@RELATION xenon\n\n')
 for a in attrs:
         if a=='Index':
                 type='string'
+        elif a=='B/E':
+                type='string'
         else:
                 type='numeric'
         out.write('@ATTRIBUTE '+a+' '+type+'\n')
