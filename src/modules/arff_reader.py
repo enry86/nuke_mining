@@ -3,60 +3,74 @@
 class FileException(Exception): pass
 
 class ArffReader:
-    def __init__(self, filename):
-        self.filename=filename
-        self.attList= None
-        self.startData=0
-        self.buffer=[]
-        self.bufferDim=100
+    """
+    This class provides support for retrieving data from a .arff
+    file
+    """
+    
+    def __init__(self,filename):
+        """
+        Constructor, takes the path to the arff file to process
+        """
+        self.filename = filename
+        self.att_list = None
+        self.start_data = 0
+        self.buffer = []
+        self.buffer_dim = 100
 
-    def getAttributes(self):
-        if self.attList != None:
-            return self.attList
+    def get_attributes(self):
+        """
+        Retrieves from the file header the atributes specification,
+        returns it as a list of lists
+        """
+        if self.att_list != None:
+            return self.att_list
         else:
-            res=[]    
-            file=open(self.filename,'r')
+            res = []    
+            file = open(self.filename,'r')
             if file == None:
                 raise FileException
-            line=file.readline()
+            line = file.readline()
             while line.count('@DATA') == 0:
                 if line.count('@ATTRIBUTE') != 0:
-                    attr=line.split()[1:]
+                    attr = line.split()[1:]
                     res.append(attr)
-                line=file.readline()
-            self.startData=file.tell()
+                line = file.readline()
+            self.start_data = file.tell()
             file.close()
-            self.attList=res
+            self.att_list = res
             return res
 
-    def fillBuffer(self):
-        file=open(self.filename,'r')
+    def fill_buffer(self):
+        """
+        reads self.bufferDim lines of the file and stores it into
+        self.buffer
+        """
+        file = open(self.filename,'r')
         if file == None:
             raise FileException
-        countLines=0
-        file.seek(self.lastRead)
-        line=file.readline()
-        while line != '' and countLines<self.bufferDim:
+        count_lines = 0
+        file.seek(self.last_read)
+        line = file.readline()
+        while line != '' and count_lines < self.buffer_dim:
             self.buffer.append(line.strip())
-            line=file.readline()
-            countLines+=1
-        self.lastRead=file.tell()-len(line)
+            line = file.readline()
+            count_lines += 1
+        self.last_read = file.tell() - len(line)
         file.close()
-        return countLines
+        return count_lines
 
-    def getNext(self):
-        if self.startData==0:
-            self.getAttributes()
-            self.lastRead=self.startData
-        if len(self.buffer)==0:
-            if self.fillBuffer() == 0:
+    def get_next(self):
+        """
+        reads and returns the next tuple in the buffer
+        """
+        if self.start_data == 0:
+            self.get_attributes()
+            self.last_read = self.start_data
+        if len(self.buffer) == 0:
+            if self.fill_buffer() == 0:
                 return None
         last = self.buffer.pop(0)
         return last.split(',')
     
-if __name__=='__main__':
-    arff=ArffReader('/home/enry/progetti/nuke_mining/dataset/training_st.arff')
-    a=arff.getNext()
-    while a != None:
-        print a[0]+','+a[1]
-        a=arff.getNext()
+
