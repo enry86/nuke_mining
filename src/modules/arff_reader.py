@@ -28,10 +28,8 @@ class ArffReader:
         else:
             res = []    
             file = open(self.filename,'r')
-            if file == None:
-                raise FileException
             line = file.readline()
-            while line.count('@DATA') == 0:
+            while line.count('@DATA') == 0 and line != '':
                 if line.count('@ATTRIBUTE') != 0:
                     attr = line.split()[1:]
                     res.append(attr)
@@ -39,6 +37,8 @@ class ArffReader:
             self.start_data = file.tell()
             file.close()
             self.att_list = res
+            if self.start_data == 0 or len(self.att_list) == 0:
+                raise FileException
             return res
 
     def fill_buffer(self):
