@@ -1,0 +1,77 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\setlength\topmargin{0in}
+\setlength\headheight{0in}
+\setlength\headsep{0in}
+\setlength\textheight{10in}
+\setlength\textwidth{6.5in}
+\setlength\oddsidemargin{0in}
+\setlength\evensidemargin{0in}
+
+\title{Data Mining project status report}
+\author{Gasparella Luca, Sartori Enrico}
+\date{A.y. 2008/2009}
+
+\begin{document}
+\maketitle
+\subsection*{Details on problem definition}
+The main aim of our project is to provide an implementation of the Random
+Decision Tree approach proposed in 2003 by Wei Fan, and compare
+its results and performance with a normal classifier.
+
+The main dataset which we are using to develop the project is taken from
+the 2008 ICDM Data Mining contest, and represents the
+concentration of a set of Xenon isotopes samples. These samples are used
+to find out possible unauthorized nuclear tests.
+
+From the implementation point of view we choose as main language Python,
+due to its great readability and because it give us the possibility to
+focus more on the algorithm developing part than on more technical issues.
+Anyway, we consider the possibility to integrate some C sections in our
+software, for dealing with the most performance critical parts.
+
+\subsection*{Plan Revision}
+As revision of the project proposal, we consider as aim of the project not
+only provide an implementation of the RDT approach, but perform a complete
+set of test in order to prove and evaluate the reliability of this
+approach in comparison with a normal classifier.
+
+For this reason we should consider more than one single dataset, in order
+to evaluate the performances of the different approaches in various
+situation.
+
+In order to have the possibility to operate on different datasets we
+choose to adopt a common format of data representation, we selected the
+Arff format. We built some tools useful to provide support for converting
+the datasets on which we are working in arff files.
+
+\subsection*{Evaluation approach}
+For our project we have three main metrics to check in order to evaluate
+the performances of the algorithms: accuracy, time and memory consumption.
+For accuracy we intend the quality of the classification obtained, which
+is measurable using cross validation techniques, or, in the case of the
+Xenon concentration dataset, using a specific application provided by the
+contest organizers.
+
+This application checks the classification obtained for the test dataset,
+giving a measure of the quality obtained.
+
+\subsection*{Status}
+We have analyzed the contests dataset and found some differences of the
+scale used by the different stations to represent the gas concentration,
+so we added an attribute useful to identify the station and adapt the
+classifier to the scale used.
+
+As we use new datasets we will provide some tools for converting them into
+arff files, if needed. At the moment we developed a tool for converting
+the contests datasets into arff files.
+
+In this moment we are focusing on the implementation of a little framework
+which can manage the execution of different algorithms, in order to ease
+the performance evaluation task.
+
+\end{document}
+
