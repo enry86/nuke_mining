@@ -19,7 +19,7 @@
 \maketitle
 \subsection*{Details on problem definition}
 The main aim of our project is to provide an implementation of the Random
-Decision Tree approach proposed in 2003 by Wei Fan, and compare
+Decision Tree approach proposed in 2003 by Wei Fan \ref{rdt}, and compare
 its results and performance with a normal classifier.
 
 The main dataset which we are using to develop the project is taken from
@@ -48,6 +48,11 @@ choose to adopt a common format of data representation, we selected the
 Arff format. We built some tools useful to provide support for converting
 the datasets on which we are working in arff files.
 
+For optimize the I/O operations, we decided to read the date from disk in
+blocks which can fit in main memory easily. In this way we don't need to
+access to the disk for every datapoint, but they are buffered in main
+memory.   
+
 \subsection*{Evaluation approach}
 For our project we have three main metrics to check in order to evaluate
 the performances of the algorithms: accuracy, time and memory consumption.
@@ -72,6 +77,21 @@ the contests datasets into arff files.
 In this moment we are focusing on the implementation of a little framework
 which can manage the execution of different algorithms, in order to ease
 the performance evaluation task.
+
+\begin{thebibliography}{9}
+\bibitem{rdt} Wei Fan, Haixun Wang, Philip S. Yu, Sheng Ma  \emph{"Is
+random model better? On its accuracy and efficiency"},  3rd IEEE
+International Conference on Data Mining (ICDM 2003), November 19-22,
+Melbourne, FL: 51-58. 
+
+\bibitem{opt} Wei Fan  \emph{"On the Optimality of Probability Estimation
+by Random Decision Trees"},  The Nineteenth National Conference on
+Artificial Intelligence (AAAI'04), San Jose, CA, July, 2004.
+
+\bibitem{book} \emph{ICDM Data Mining Contest '08 booklet},\\
+ http://www.cs.uu.nl/groups/ADA/icdm08cup/booklet.pdf.
+
+\end{thebibliography}
 
 \end{document}
 
