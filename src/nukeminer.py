@@ -7,7 +7,7 @@ import os
 def read_opts():
     from getopt import gnu_getopt as getopt
     res = {}
-    for o,a in getopt(sys.argv,'t:a:d:o:')[0]:
+    for o,a in getopt(sys.argv,'t:a:d:o:c:')[0]:
         if o == '-t':
             res['train_file'] = a
         elif o == '-a':
@@ -16,34 +16,51 @@ def read_opts():
             res['test_file'] = a
         elif o == '-o':
             res['out_file'] = a
+        elif o == '-c':
+            res['classifier'] = a
     return res 
-
-def manage_algs(arff,attr,outfile):
-    print arff,attr,outfile
 
 def main():
     opts = read_opts()
     try:
         os.stat(opts['train_file'])
-        arff = arff_reader.ArffReader(opts['train_file'])
+        arff_in = arff_reader.ArffReader(opts['train_file'])
     except KeyError:
         return 1, 'No training dataset provided'
     except OSError:
         return 2, 'Training file not found'
+    
     try:
         attr = opts['class_attr']
     except KeyError:
         return 3, 'Class attribute not provided'
+    
     try:
-        outfile = opts['out_file']
+        arff_test = arff_reader.ArffReader(opts['test_file'])
     except KeyError:
-        return 4, 'Output file not provided'
-    manage_algs(arff,attr,outfile)
+        return 4, 'Test dataset not provided'
+    except OSError:
+        return 5, 'Test dataset not found'
+
+    try:
+        arff_out = arff_writer.ArffWriter(opts['out_file'],'class')
+    except KeyError:
+        return 6, 'Output file not provided'
+    
+    try:
+        class_alg = opts['classifier']
+    except KeyError:
+        class_alg = 'RandomDT'
+
+    manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg, arff_out)
+    manager.perform_test()
     return 0,None
 
 if __name__ == '__main__':
     sys.path.append(os.getcwd()+'/modules')
     import arff_reader
+    import arff_writer
+    import class_mgr
     r = main()
     if r[0] != 0:
         sys.stderr.write('Error: '+r[1]+'\n')

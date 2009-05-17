@@ -35,6 +35,7 @@ class ArffReader:
                     res.append(attr)
                 line = file.readline()
             self.start_data = file.tell()
+            self.last_read = self.start_data
             file.close()
             self.att_list = res
             if self.start_data == 0 or len(self.att_list) == 0:
