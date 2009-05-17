@@ -18,6 +18,9 @@ def read_opts():
             res['out_file'] = a
     return res 
 
+def manage_algs(arff,attr,outfile):
+    print arff,attr,outfile
+
 def main():
     opts = read_opts()
     try:
@@ -27,6 +30,15 @@ def main():
         return 1, 'No training dataset provided'
     except OSError:
         return 2, 'Training file not found'
+    try:
+        attr = opts['class_attr']
+    except KeyError:
+        return 3, 'Class attribute not provided'
+    try:
+        outfile = opts['out_file']
+    except KeyError:
+        return 4, 'Output file not provided'
+    manage_algs(arff,attr,outfile)
     return 0,None
 
 if __name__ == '__main__':
