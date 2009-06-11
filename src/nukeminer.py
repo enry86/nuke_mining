@@ -3,7 +3,6 @@
 import sys
 import os
 
-
 def read_opts():
     from getopt import gnu_getopt as getopt
     res = {}

@@ -10,4 +10,4 @@ class ClassMgr:
         out_arff.store_buffer()
 
     def perform_test(self):
-        print 'ulaula'
+        print sys.path
