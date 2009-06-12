@@ -1,3 +1,5 @@
+import sys
+
 class ClassMgr:
     
     def __init__(self, tr_arff, cl_attr, ts_arff, alg, out_arff):
@@ -10,4 +12,4 @@ class ClassMgr:
         out_arff.store_buffer()
 
     def perform_test(self):
-        print sys.path
+        print 'lol'

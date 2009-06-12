@@ -72,6 +72,10 @@ class ArffReader:
             if self.fill_buffer() == 0:
                 return None
         last = self.buffer.pop(0)
-        return last.split(',')
+        last_sp = last.split(',')
+        if last_sp[-1] == '':
+            return last_sp[:-1]
+        else:
+            return last_sp
     
 
