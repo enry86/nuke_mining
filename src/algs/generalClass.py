@@ -53,13 +53,14 @@ class Classifier:
         return list
 
     def train(self):
-        
+        print 'fuffa'
 
     def info_gain(self, data, label, attr):
         return self.entropy(data, label) - self.con_entropy(data, label, attr)
 
     def num_info_gain(self, data, label, attr, thres):
-        print 'olaola'
+        entr = self.entropy(data, label)
+
 
     def entropy(self, data, attr):
         entr = 0
