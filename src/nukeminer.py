@@ -57,6 +57,7 @@ def main():
 
 if __name__ == '__main__':
     sys.path.append(os.getcwd()+'/modules')
+    sys.path.append(os.getcwd()+'/algs')
     import arff_reader
     import arff_writer
     import class_mgr
