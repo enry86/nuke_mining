@@ -6,7 +6,7 @@ import os
 def read_opts():
     from getopt import gnu_getopt as getopt
     res = {}
-    for o,a in getopt(sys.argv,'t:a:d:o:c:')[0]:
+    for o,a in getopt(sys.argv,'t:a:d:o:c:i:')[0]:
         if o == '-t':
             res['train_file'] = a
         elif o == '-a':
@@ -17,6 +17,8 @@ def read_opts():
             res['out_file'] = a
         elif o == '-c':
             res['classifier'] = a
+        elif o == '-i':
+            res['ignored'] = a.split(',')
     return res 
 
 def main():
@@ -49,9 +51,14 @@ def main():
     try:
         class_alg = opts['classifier']
     except KeyError:
-        class_alg = 'RandomDT'
-
-    manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg, arff_out)
+        class_alg = 'generalClass'
+    
+    try:
+        ign_att = opts['ignored']
+    except KeyError:
+        ign_att = []
+    manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg,
+    arff_out, ign_att)
     manager.perform_test()
     return 0,None
 

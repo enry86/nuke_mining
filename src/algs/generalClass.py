@@ -3,13 +3,13 @@
 import math
 
 class Node:
-    data = None
+    data = []    
     label = None
     attr = None
     value = None
-    child = None
+    child = {}
 
-    def init(self):
+    def __init__(self):
         self.data = []
         self.label = None
         self.attr = 0
@@ -37,32 +37,105 @@ class Sorter:
 
 
 class Classifier:
-    def __init__(self, ds_in, ds_out, attrs, cl_att):
+    def __init__(self, ds_in, ds_out, attrs, cl_att, ign_att ):
         self.ds_in = ds_in
         self.ds_out = ds_out
         self.attrs = attrs
         self.cl_att = cl_att
-        
+        self.ign_att = ign_att
+
         for i in range(len(self.attrs)):
             if self.attrs[i][0] == cl_att:
                 self.class_n = i
         dataset = self.fetch_data()
         self.root = Node()
         self.root.data = dataset
-        for i in range(len(self.attrs)):
-            if i != 2:
-                print self.attrs[i][0], self.info_gain(dataset, 2, i)
-
+        
     def fetch_data(self):
         list = []
         data = self.ds_in.get_next()
+        i = 0 
         while data != None:
             list.append(data)
             data = self.ds_in.get_next()
         return list
 
     def train(self):
-        print 'fuffa'
+        self.train_node(self.root)
+
+    def train_node(self, node):
+        trained = False
+        labels = self.find_values(node.data, self.class_n)
+        l_max = 0
+        l_max_val = None
+        for l in labels:
+            if labels[l] > l_max:
+                l_max = labels[l]
+                l_max_val  = l
+        node.label = l_max_val
+        if len(labels) <= 1:
+            trained = True
+            print node.label
+        if not trained:
+            max = 0.0
+            max_att = 0
+            for i in range(len(self.attrs)):
+                if i != self.class_n and \
+                self.ign_att.count(self.attrs[i][0]) == 0:
+                    tmp, tr  = self.info_gain(node.data, self.class_n, i) 
+                    if tmp > max:
+                        max = tmp
+                        max_att = i
+                        max_tr = tr
+            if max == 0.0:
+                trained = True
+            else:
+                node.attr = max_att
+                node.value = max_tr
+            if node.value != None and not trained:
+                lt, mt = self.num_split_dataset(node.data, node.attr, node.value)
+                lc = '<'+node.value.__str__()
+                node.child[lc] = Node()
+                node.child[lc].data = lt
+                mc = '>'+node.value.__str__()
+                node.child[mc] = Node()
+                node.child[mc].data = mt
+            elif node.value == None and not trained:
+                vals = self.split_dataset(node.data, max_att)
+                for v in vals:
+                    node.child[v] = Node()
+                    node.child[v].data = vals[v]
+            for c in node.child:
+                self.train_node(node.child[c])
+
+            
+
+    def num_split_dataset(self, data, attr, value):
+        sorter = Sorter(attr, self.attrs[attr][1])
+        data.sort(sorter.cmp)
+        i = 0
+        while i < len(data) and data[i][attr] < value:
+            i = i + 1
+        return data[:i],data[i:]
+            
+
+    def find_values(self, data, att):
+        res = {}
+        for d in data:
+            if not res.has_key(d[att]):
+                res[d[att]] = 1
+            else:
+                res[d[att]] = res[d[att]] + 1
+        return res
+
+    def split_dataset(self, data, att):
+        res = {}
+        for d in data:
+            if not res.has_key(d[att]):
+                res[d[att]] = []
+            res[d[att]].append(d)
+        return res
+
 
     def info_gain(self, data, label, attr):
         entr = self.entropy(data,label)
@@ -82,9 +155,9 @@ class Classifier:
                     max = tmp
                     t_max = data[c][attr]
                 c = c + step
-            return max
+            return max, t_max 
         else:
-            return entr - self.con_entropy(data, label, attr)
+            return entr - self.con_entropy(data, label, attr), None
 
     def entropy(self, data, attr):
         entr = 0
