@@ -72,7 +72,11 @@ def main():
     manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg,
     arff_out, ign_att, cross_per)
     tt, ct = manager.perform_test()
-    print manager.get_accuracy(opts['out_file']), tt, ct 
+    if cross:
+        acc = manager.get_accuracy(opts['out_file'])
+    else:
+        acc = ''
+    print acc, tt, ct 
     return 0,None
 
 if __name__ == '__main__':
