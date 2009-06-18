@@ -8,13 +8,15 @@ class Node:
     attr = None
     value = None
     child = {}
+    ign = []
 
     def __init__(self):
         self.data = []
         self.label = None
-        self.attr = 0
+        self.attr = -1
         self.value = None
         self.child = {}
+        self.ign = []
 
 class Sorter:
     def __init__(self, index, type):
@@ -43,13 +45,13 @@ class Classifier:
         self.attrs = attrs
         self.cl_att = cl_att
         self.ign_att = ign_att
-
         for i in range(len(self.attrs)):
             if self.attrs[i][0] == cl_att:
                 self.class_n = i
         dataset = self.fetch_data()
         self.root = Node()
         self.root.data = dataset
+        self.root.ign = ign_att
         
     def fetch_data(self):
         list = []
@@ -75,13 +77,12 @@ class Classifier:
         node.label = l_max_val
         if len(labels) <= 1:
             trained = True
-            print node.label
         if not trained:
             max = 0.0
             max_att = 0
             for i in range(len(self.attrs)):
                 if i != self.class_n and \
-                self.ign_att.count(self.attrs[i][0]) == 0:
+                node.ign.count(self.attrs[i][0]) == 0:
                     tmp, tr  = self.info_gain(node.data, self.class_n, i) 
                     if tmp > max:
                         max = tmp
@@ -94,18 +95,17 @@ class Classifier:
                 node.value = max_tr
             if node.value != None and not trained:
                 lt, mt = self.num_split_dataset(node.data, node.attr, node.value)
-                lc = '<'+node.value.__str__()
-                node.child[lc] = Node()
-                node.child[lc].data = lt
-                mc = '>'+node.value.__str__()
-                node.child[mc] = Node()
-                node.child[mc].data = mt
+                node.child[0] = Node()
+                node.child[0].data = lt
+                node.child[1] = Node()
+                node.child[1].data = mt
             elif node.value == None and not trained:
                 vals = self.split_dataset(node.data, max_att)
                 for v in vals:
                     node.child[v] = Node()
                     node.child[v].data = vals[v]
             for c in node.child:
+                node.child[c].ign = node.ign
                 self.train_node(node.child[c])
 
             
@@ -142,7 +142,7 @@ class Classifier:
         if self.attrs[attr][1] == 'numeric':
             sorter = Sorter(attr, self.attrs[attr][1])
             data.sort(sorter.cmp)
-            b_size = 10
+            b_size = 3
             if len(data) < b_size:
                 b_size = len(data)
             step = len(data) / b_size
@@ -231,8 +231,36 @@ class Classifier:
         return float(count) / len(data) , i
     
             
-            
+    def classify(self, ds_test):
+        attr = ds_test.get_attributes()
+        attr.append([self.attrs[self.class_n][0]+'_label',self.attrs[self.class_n][1]])
+        self.ds_out.write_headers(attr)
+        d = ds_test.get_next()
+        while d != None:
+            label = self.do_classification(self.root, d, attr)
+            d.append(label)
+            self.ds_out.write_data(d)
+            d = ds_test.get_next()
+        self.ds_out.store_buffer()
 
-    
+    def do_classification(self, node, sample, attr):
+        if node.attr == -1:
+            return node.label
+        else:
+            for a in range(len(attr)):
+                if attr[a][0] == self.attrs[node.attr][0]:
+                    val = sample[a]
+                    att = a
+            if node.value == None:
+                return self.do_classification(node.child[sample[att]],\
+                sample, attr)
+            else:
+                if float(sample[att]) < float(node.value):
+                    child = 0
+                else:
+                    child = 1
+                return self.do_classification(node.child[child], sample,\
+                attr)
+
 
         

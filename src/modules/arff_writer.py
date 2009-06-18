@@ -26,6 +26,8 @@ class ArffWriter:
         file = open(self.file,'a')
         while len(self.buffer) > 0:
             dp = self.buffer.pop(0)
+            if dp == None:
+                print len(self.buffer)
             for s in dp:
                 file.write(s+',')
             file.write('\n')

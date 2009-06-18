@@ -6,7 +6,7 @@ import os
 def read_opts():
     from getopt import gnu_getopt as getopt
     res = {}
-    for o,a in getopt(sys.argv,'t:a:d:o:c:i:')[0]:
+    for o,a in getopt(sys.argv,'t:a:d:o:c:i:x:')[0]:
         if o == '-t':
             res['train_file'] = a
         elif o == '-a':
@@ -19,10 +19,13 @@ def read_opts():
             res['classifier'] = a
         elif o == '-i':
             res['ignored'] = a.split(',')
+        elif o == '-x':
+            res['cross'] = a
     return res 
 
 def main():
     opts = read_opts()
+    cross = True
     try:
         os.stat(opts['train_file'])
         arff_in = arff_reader.ArffReader(opts['train_file'])
@@ -37,11 +40,20 @@ def main():
         return 3, 'Class attribute not provided'
     
     try:
-        arff_test = arff_reader.ArffReader(opts['test_file'])
+        cross_per = opts['cross']
     except KeyError:
-        return 4, 'Test dataset not provided'
-    except OSError:
-        return 5, 'Test dataset not found'
+        cross = False
+        cross_per = -1
+
+    if not cross:
+        try:
+            arff_test = arff_reader.ArffReader(opts['test_file'])
+        except KeyError:
+            return 4, 'Test dataset not provided'
+        except OSError:
+            return 5, 'Test dataset not found'
+    else:
+        arff_test = None
 
     try:
         arff_out = arff_writer.ArffWriter(opts['out_file'],'class')
@@ -58,8 +70,9 @@ def main():
     except KeyError:
         ign_att = []
     manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg,
-    arff_out, ign_att)
-    manager.perform_test()
+    arff_out, ign_att, cross_per)
+    tt, ct = manager.perform_test()
+    print manager.get_accuracy(opts['out_file']), tt, ct 
     return 0,None
 
 if __name__ == '__main__':
