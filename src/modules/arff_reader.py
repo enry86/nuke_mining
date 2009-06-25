@@ -54,7 +54,8 @@ class ArffReader:
         file.seek(self.last_read)
         line = file.readline()
         while line != '' and count_lines < self.buffer_dim:
-            self.buffer.append(line.strip())
+            line = line.strip()
+            self.buffer.append(line.replace(' ',''))
             line = file.readline()
             count_lines += 1
         self.last_read = file.tell() - len(line)

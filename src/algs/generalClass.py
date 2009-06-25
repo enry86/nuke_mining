@@ -142,7 +142,7 @@ class Classifier:
         if self.attrs[attr][1] == 'numeric':
             sorter = Sorter(attr, self.attrs[attr][1])
             data.sort(sorter.cmp)
-            b_size = 3
+            b_size = 5
             if len(data) < b_size:
                 b_size = len(data)
             step = len(data) / b_size
@@ -252,8 +252,11 @@ class Classifier:
                     val = sample[a]
                     att = a
             if node.value == None:
-                return self.do_classification(node.child[sample[att]],\
-                sample, attr)
+                if node.child.has_key(sample[att]):
+                    return self.do_classification(node.child[sample[att]],\
+                    sample, attr)
+                else:
+                    return node.label
             else:
                 if float(sample[att]) < float(node.value):
                     child = 0
