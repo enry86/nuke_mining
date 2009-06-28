@@ -26,6 +26,7 @@ class ClassMgr:
             self.attrs, cl_attr,ign_att)
         else:
             raise NoAlgException
+
     
     def create_cross_ds(self, data, per, attr):
         train_name = 'cv_train_'+per+'.arff'
@@ -52,6 +53,8 @@ class ClassMgr:
         in_arff = arff_reader.ArffReader(out_file)
         d = in_arff.get_next()
         hit = 0
+        err1 = 0
+        err2 = 0
         count = 0
         for i in range(len(self.attrs)):
             if self.attrs[i][0] == self.cl_attr:
@@ -60,17 +63,21 @@ class ClassMgr:
         while d != None:
             if d[lab] == d[-1]:
                 hit = hit + 1
+            elif d[lab] == '<=50K' and d[-1] != d[lab]:
+                err1 = err1 + 1
+            elif d[lab] == '>50K' and d[-1] != d[lab]:
+                err2 = err2 + 1
             count = count + 1
             d = in_arff.get_next()
         return float(hit) / float(count)
 
     def perform_test(self):
         tr_start = time.time()
-        self.alg.train()
+        nodes, leafs, cl_leafs = self.alg.train()
         tr_stop = time.time()
         tr_time = tr_stop - tr_start
         cl_start = time.time()
         self.alg.classify(self.ts_arff)
         cl_stop = time.time()
         cl_time = cl_stop - cl_start
-        return tr_time, cl_time
+        return tr_time, cl_time, nodes, leafs, cl_leafs

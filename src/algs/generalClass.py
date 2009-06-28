@@ -52,7 +52,10 @@ class Classifier:
         self.root = Node()
         self.root.data = dataset
         self.root.ign = ign_att
-        
+        self.nodes = 0
+        self.leafs = 0
+        self.cl_leafs = {}
+          
     def fetch_data(self):
         list = []
         data = self.ds_in.get_next()
@@ -64,19 +67,35 @@ class Classifier:
 
     def train(self):
         self.train_node(self.root)
+        return self.nodes, self.leafs, self.cl_leafs
 
     def train_node(self, node):
+        self.nodes = self.nodes + 1
         trained = False
         labels = self.find_values(node.data, self.class_n)
         l_max = 0
+        l_min = -1
         l_max_val = None
+        l_min_val = None
         for l in labels:
+            if l_min == -1:
+                l_min = labels[l]
+                l_min_val = l
+            elif labels[l] <= l_min:
+                l_min = labels[l]
+                l_min_val = l
             if labels[l] > l_max:
                 l_max = labels[l]
                 l_max_val  = l
-        node.label = l_max_val
+        if l_max != l_min or len(labels) == 1:
+           node.label = l_max_val
         if len(labels) <= 1:
             trained = True
+            self.leafs = self.leafs + 1
+            if self.cl_leafs.has_key(node.label):
+                self.cl_leafs[node.label] = self.cl_leafs[node.label] + 1
+            else:
+                self.cl_leafs[node.label] = 1
         if not trained:
             max = 0.0
             max_att = 0
@@ -90,6 +109,11 @@ class Classifier:
                         max_tr = tr
             if max == 0.0:
                 trained = True
+                self.leafs = self.leafs + 1
+                if self.cl_leafs.has_key(node.label):
+                    self.cl_leafs[node.label] = self.cl_leafs[node.label] + 1
+                else:
+                    self.cl_leafs[node.label] = 1
             else:
                 node.attr = max_att
                 node.value = max_tr
@@ -100,12 +124,14 @@ class Classifier:
                 node.child[1] = Node()
                 node.child[1].data = mt
             elif node.value == None and not trained:
+                node.ign.append(max_att)
                 vals = self.split_dataset(node.data, max_att)
                 for v in vals:
                     node.child[v] = Node()
                     node.child[v].data = vals[v]
             for c in node.child:
                 node.child[c].ign = node.ign
+                node.child[c].label = node.label
                 self.train_node(node.child[c])
 
             
@@ -142,7 +168,7 @@ class Classifier:
         if self.attrs[attr][1] == 'numeric':
             sorter = Sorter(attr, self.attrs[attr][1])
             data.sort(sorter.cmp)
-            b_size = 5
+            b_size = 10
             if len(data) < b_size:
                 b_size = len(data)
             step = len(data) / b_size
