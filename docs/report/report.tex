@@ -13,6 +13,7 @@ classification algorithms.
 The main evaluation measures used are time used for building the
 classification structure, space consumed by the structure and the accuracy
 of the classification provided.
+
 The example provided here is the evaluation of the performances of a
 generic decision tree and the Random Decision Tree algorithm by Wei Fan.
 \end{abstract}
@@ -23,5 +24,33 @@ of different classification algorithms. In particular we have focused on
 the Random Decision Tree algorithm, comparing its performances with a
 decision tree based on Information Gain.
 
-The 
+During the development of the project we took care of two different
+aspects, in fact we provided an implementation of the algorithms tested
+and we have implemented a framework able to launch and measure the
+performance of the different algorithms.
+
+The evaluation of the algorithm is based on three measures: the time spent
+for build the classification structure, the space needed to store and use
+this structure and the accuracy of the algorithm.
+
+The accuracy is defined as the percentage of correctly classified
+datapoints in a dataset.
+For allowing the analysis of the accuracy on every dataset, our framework
+integrates the possibility to perform a cross validation over the dataset
+using a user chosen percentage of datapoints for training ant the other
+for testing.
+
+The testing environment realized permits the setting of many parameters
+used for tuning the classification task, in order to measure the influence
+of those parameters on the overall performance.
+
+The language chosen for the implementation of the platform and the
+algorithms is Python. This choice has been made because of the relative
+simplicity of the language which permitted us to focus more attention on
+the algorithmic part rather than on solving more fine grain implementation
+problems.
+
+
+
+
 \end{document}
