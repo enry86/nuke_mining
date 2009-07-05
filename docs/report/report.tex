@@ -55,12 +55,9 @@ behave when used on different dataset and with different parameters.
 
 \section{RELATED WORK}
 
-
-\subsection{Decision Tree}
 The first algorithm used for comparison is a common Decision Tree, in fact
 we wanted to have a comparison of the RDT approach with a commonly used
 and known method.
-
 The literature is rich of works about decision tree training and
 implementation. In particular (ARTICLE INTRO) gives a complete background
 of the basilar techniques used for the realization of such algorithms.
@@ -68,10 +65,57 @@ of the basilar techniques used for the realization of such algorithms.
 In this work particular attention is posed into the various measures used
 to evaluate the best attribute to use to train the root of a decision
 tree.
+These techniques are presented in a more concrete way in a tutorial by
+Andrew Moore (REFERENCE). In this presentation the algorithm used is
+a decision tree based on information gain as splitting measure, and
+presents some ways to optimize and prune the obtained tree.
+For the information gain, the same author published a set of slides
+in which presents this measure and the way in which it can be computed.
 
-
-\subsection{Random Decision Tree}
 The second algorithm we choose for the comparison is the Random Decision
 Tree presented by Wei Fan in (ARTICLE NUMBER)
+
+\section{PROBLEM DEFINITION}
+The main aim of this work is to produce a comparison between two different
+approaches to the classification task. In particular we are focusing our
+attention in analyzing the performances of a rather new approach (RDT),
+which uses random choices ti build the decision tree, and a more common
+algorithm based on information gain.
+
+In order to to this we need to provide a reliable implementation of both
+the algorithms, which permits us to perform some test and analysis on the
+results acquired.
+
+The measures used for comparison are three: 
+\begin{itemize}
+\item The time taken to build the tree and eventually perform the
+classification three.
+\item The space used to store the tree structure.
+\item The accuracy obtained in the classification task.
+\end{itemize}
+
+The measure of the space used presented some difficulties, due to the
+dynamic typing feature of the language used, in order to solve this we
+implemented a method which measures the memory used by an object referring
+to the correspondent primitive type of C. This method is explained in
+details in following section.
+
+The accuracy can be verified in case of cross validation, classifying a
+set of previously known datapoints. This measure can vary depending on the
+dataset characteristics. For this reason is important to compare the
+results obtained by the two algorithms on the same datasets.
+
+\section{PROPOSED APPROACH}
+In this section we describe and discuss the choice taken during the
+development of this project. We will focus first on the implementation of
+the platform used for the algorithm comparison and the way it's intended
+to be used.
+Later the details about the implementation of the algorithms will be
+clarified.
+
+\subsection{Classification platform}
+
+
+
 
 \end{document}
