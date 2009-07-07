@@ -2,6 +2,7 @@
 
 import sys
 import generalClass
+import randomDT
 import random
 import arff_reader
 import arff_writer
@@ -12,9 +13,13 @@ class NoAlgException (Exception): pass
 class ClassMgr:
     
     def __init__(self, tr_arff, cl_attr, ts_arff, alg_name, out_arff,\
-    ign_att, cross_per):
+    ign_att, cross_per, class_par):
         self.attrs = tr_arff.get_attributes()
         self.cl_attr = cl_attr
+        if class_par == None:
+            class_par = 0
+        else:
+            class_par = int(class_par)
         if cross_per == -1:
             self.ts_arff = ts_arff
             self.tr_arff = tr_arff 
@@ -23,7 +28,10 @@ class ClassMgr:
             cross_per, self.attrs)
         if alg_name == 'generalClass':
             self.alg = generalClass.Classifier(self.tr_arff, out_arff,\
-            self.attrs, cl_attr,ign_att)
+            self.attrs, cl_attr, ign_att, class_par)
+        elif alg_name == 'randomDT':
+            self.alg = randomDT.Classifier(self.tr_arff, out_arff,\
+            self.attrs, cl_attr, ign_att, class_par)
         else:
             raise NoAlgException
 

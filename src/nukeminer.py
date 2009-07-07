@@ -62,15 +62,18 @@ def main():
     
     try:
         class_alg = opts['classifier']
+        if class_alg.count(',') == 1:
+            class_alg, class_par = class_alg.split(',')
+        else:
+            class_par = None
     except KeyError:
         class_alg = 'generalClass'
-    
     try:
         ign_att = opts['ignored']
     except KeyError:
         ign_att = []
-    manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg,
-    arff_out, ign_att, cross_per)
+    manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg,\
+    arff_out, ign_att, cross_per, class_par)
     tt, ct, nodes, leafs, cl_leafs = manager.perform_test()
     if cross:
         acc = manager.get_accuracy(opts['out_file'])

@@ -39,7 +39,7 @@ class Sorter:
 
 
 class Classifier:
-    def __init__(self, ds_in, ds_out, attrs, cl_att, ign_att ):
+    def __init__(self, ds_in, ds_out, attrs, cl_att, ign_att, thr_num):
         self.ds_in = ds_in
         self.ds_out = ds_out
         self.attrs = attrs
@@ -55,7 +55,12 @@ class Classifier:
         self.nodes = 0
         self.leafs = 0
         self.cl_leafs = {}
-          
+        if thr_num == 0:
+            self.b_size = 7;
+        else:
+            self.b_size = thr_num
+
+
     def fetch_data(self):
         list = []
         data = self.ds_in.get_next()
@@ -168,7 +173,7 @@ class Classifier:
         if self.attrs[attr][1] == 'numeric':
             sorter = Sorter(attr, self.attrs[attr][1])
             data.sort(sorter.cmp)
-            b_size = 10
+            b_size = self.b_size
             if len(data) < b_size:
                 b_size = len(data)
             step = len(data) / b_size
