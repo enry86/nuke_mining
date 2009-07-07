@@ -65,11 +65,7 @@ class RandomDT:
             value = tuple[attributes.index(tree.label)]
             parent = tree
             if tree.label[1] == "string":
-                try:
-                    tree = tree.childs[tree.threshold.index(value)]
-                except ValueError:
-                    #print "\nCAZZZO DI UN DIO", tree.threshold, value
-                    return None
+                tree = tree.childs[tree.threshold.index(value)]
             else:
                 if float(value) < float(tree.threshold):
                     tree = tree.childs[0]
