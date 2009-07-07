@@ -4,6 +4,9 @@ import sys
 import os
 
 def read_opts():
+    """
+    Reads the options from command line
+    """
     from getopt import gnu_getopt as getopt
     res = {}
     for o,a in getopt(sys.argv,'t:a:d:o:c:i:x:')[0]:
@@ -24,6 +27,10 @@ def read_opts():
     return res 
 
 def main():
+    """
+    The main function checks the parameters passed from the command line,
+    instantiating the manager class following the desired options
+    """
     opts = read_opts()
     cross = True
     try:
