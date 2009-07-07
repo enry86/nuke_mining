@@ -59,21 +59,22 @@ The first algorithm used for comparison is a common Decision Tree, in fact
 we wanted to have a comparison of the RDT approach with a commonly used
 and known method.
 The literature is rich of works about decision tree training and
-implementation. In particular (ARTICLE INTRO) gives a complete background
-of the basilar techniques used for the realization of such algorithms.
+implementation. In particular \cite{quinlan:induction} gives a complete
+background of the basilar techniques used for the realization of such
+algorithms.
 
 In this work particular attention is posed into the various measures used
 to evaluate the best attribute to use to train the root of a decision
 tree.
 These techniques are presented in a more concrete way in a tutorial by
-Andrew Moore (REFERENCE). In this presentation the algorithm used is
+Andrew Moore \cite{moore:dtree}. In this presentation the algorithm used is
 a decision tree based on information gain as splitting measure, and
 presents some ways to optimize and prune the obtained tree.
 For the information gain, the same author published a set of slides
 in which presents this measure and the way in which it can be computed.
 
 The second algorithm we choose for the comparison is the Random Decision
-Tree presented by Wei Fan in (ARTICLE NUMBER)
+Tree presented by Wei Fan in \cite{fan:rdt}
 
 \section{PROBLEM DEFINITION}
 The main aim of this work is to produce a comparison between two different
@@ -106,16 +107,75 @@ dataset characteristics. For this reason is important to compare the
 results obtained by the two algorithms on the same datasets.
 
 \section{PROPOSED APPROACH}
-In this section we describe and discuss the choice taken during the
-development of this project. We will focus first on the implementation of
+This section describes and discusses the choice taken during the
+development of the project. It will focus first on the implementation of
 the platform used for the algorithm comparison and the way it's intended
 to be used.
 Later the details about the implementation of the algorithms will be
 clarified.
 
 \subsection{Classification platform}
+This part of the project covers the task of managing the execution of the
+algorithms and the measurement of the performances. As for the
+classification algorithms, the language chosen for the implementation is
+python, in order to have a more natural interface with the classifier.
 
+The main tasks which this section of the software performs, can be
+summarized as follows:
+\begin{itemize}
+\item Interpret the command line options;
+\item Execute the selected algorithm following the options given;
+\item Provide support for cross validation;
+\item Measure the performance obtained by the algorithm executed;
+\item Report the informations retrieved;
+\end{itemize}
 
+Before discuss the implementation details is useful give a quick reference
+about the usage of the system.
 
+\subsubsection{System usage}
+The platform implemented permits the setting of various options, needed
+for widen the possibility of performing tests with different algorithms.
+
+The general way in which the system operates is to use a dataset for train
+the classifier. Then the platform reads from test dataset and classifies
+the datapoints, finally the now classified data are stored in a third
+dataset.
+
+The user can specify the attribute to be used as class and a list of
+attributes to be ignored in the training task.
+
+One of the most relevant features is the support for cross validation,
+with the possibility to select the percentage of data to use for training
+and for testing.
+When cross validation is enabled is possible to compute a measure of
+accuracy of the algorithm. 
+
+Obviously is possible to select the desired algorithm to be used for the
+test. In addition to this is possible to choose a particular aspect of the
+algorithm itself.
+
+In fact, for the generic Decision Tree is possible to choose the number of
+threshold to be tested for the computation of the information gain for
+numerical data.
+A similar option is usable for the RDT, permitting to set the number of
+random tree to be generated.
+
+An outline of the possible options is provided by the following list:
+\begin{description}
+\item{-t} File containing the training dataset, mandatory
+\item{-d} File containing the testing dataset, mandatory if not in cross
+validation mode
+\item{-o} Output file, mandatory
+\item{-a} Class attribute, mandatory
+\item{-c} Classifier (classifier\_name[,extra\_parameter]), optional
+(generic DT is the default choice)
+\item{-i} List of ignored attributes, optional
+\item{-x} Percentage of splitting for cross validation, optional, enables
+cross validation
+\end{description}
+
+\bibliographystyle{abbrv}
+\bibliography{report}
 
 \end{document}
