@@ -11,9 +11,19 @@ import time
 class NoAlgException (Exception): pass
 
 class ClassMgr:
-    
+    """
+    This class intialize the classifier and manages the execution of the
+    algorithms.
+    It provides support for executing the cross validation, creating the
+    testing and training dataset following the parameters given
+    """
+
     def __init__(self, tr_arff, cl_attr, ts_arff, alg_name, out_arff,\
     ign_att, cross_per, class_par):
+        """
+        Initializes the manager class and loads the classifier selected,
+        if used in cross validation mode, creates the datasets
+        """
         self.attrs = tr_arff.get_attributes()
         self.cl_attr = cl_attr
         if class_par == None:
@@ -37,6 +47,12 @@ class ClassMgr:
 
     
     def create_cross_ds(self, data, per, attr):
+        """
+        This function splits the dataset as specified via command line for
+        performing the cross validation, returns the datasets ready for
+        read in data
+        """
+
         train_name = 'cv_train_'+per+'.arff'
         test_name = 'cv_test_'+per+'.arff'
         tr = arff_writer.ArffWriter(train_name, 'cross_train')
@@ -58,6 +74,12 @@ class ClassMgr:
         arff_reader.ArffReader(test_name)
 
     def get_accuracy(self, out_file):
+        """
+        This function computes the accuracy of the classification task
+        performed, comparing the real classification read from the testing
+        dataset, with the output of the classifier.
+        """
+
         in_arff = arff_reader.ArffReader(out_file)
         d = in_arff.get_next()
         hit = 0
@@ -80,6 +102,11 @@ class ClassMgr:
         return float(hit) / float(count)
 
     def perform_test(self):
+        """
+        This function starts and manages the execution of the test, it
+        stores the time taken for build the classifier, for classify the
+        data, the number of total nodes and the number of leafs
+        """
         tr_start = time.time()
         nodes, leafs, cl_leafs = self.alg.train()
         tr_stop = time.time()
