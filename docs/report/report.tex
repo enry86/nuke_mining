@@ -9,7 +9,7 @@
 \maketitle
 
 \begin{abstract}
-This paper presents a framework useful for the comparison between
+This paper presents a framework useful to perform comparisons between
 classification algorithms.
 The main evaluation measures used are the time used for building the
 classification structure, the space consumed by the structure and the
@@ -246,6 +246,140 @@ character, as in the following example:
 4.7,3.2,1.3,0.2,Iris-setosa
 \end{verbatim}
 
+\subsubsection{Performance evaluation}
+The main objective of the platform is to provide a system able to measure
+the performance of a particular algorithm completing the task assigned.
+As said in the introduction the system bases the evaluation on three main
+measures: time, space and accuracy of the classification.
+
+The classification process goes through two main phases, the first one,
+the most long and difficult, is the construction of the decision tree,
+while the classification of unknown datapoints is generally a less
+demanding operation.
+
+The platform presented here can evaluate the time needed both for
+constructing the tree and for classifying a test dataset. 
+Even if the time needed for classifying a dataset is often a fraction of
+the time used for building the tree, the behaviour of different algorithms
+on this operation can be very important.
+
+An example of the importance of this value can be represented by the case
+of an on-line classifier. In this particular environment the time needed
+for classify a datapoint is a vital parameter for the evaluation of the
+performance of the algorithm.
+
+The technique used for evaluate the time spent on the whole classification
+task is fairly simple. In fact the platform simply measures the time
+elapsed between the start and the end of the process.
+
+Besides its simplicity and robustness, this approach presents some
+drawbacks. The main is that this way of measuring time performance is
+strictly dependent on the machine used for executing the test.
+Therefore in order to retrieve reliable result from a comparison between
+two algorithms is better to execute them on the same machine.
+
+Another problem is represented by the possibility of interferences from
+other programs and daemon running on the machine. These interferences can
+lead to a drop of performances in term of time.
+
+An alternative way of counting the time spent for the execution of the
+algorithm could be use, instead of the second elapsed, the clock cycles
+used by the program. 
+This measure unit would be less immediate to understand and less natural.
+
+During the development of the project has been preferred to use seconds as
+the measure unit, taking care of execute the program in controlled
+environment on a dedicated machine.
+
+The measure of the space is equally important, in fact the dimension of
+the dataset to analyze can be very huge, or theoretically infinite, as in
+the case of many application of online classifiers.
+This shows the importance of the measure of the space used for running the
+classification algorithm, the risk is to build a structure which cannot
+fit in the main memory of the machine used.
+
+For the algorithms implemented for this comparison, this case has not been
+considered, considering valid the assumption that the dataset can always
+fit in main memory.
+The reason of this choice is that implement some ways to reduce the
+footprint in memory of the structure used, maybe storing some less used
+branches of the tree on disk, could be very difficult to be realized in
+equal way between the two algorithms.
+
+The differences between the structures used in the two algorithms, are too
+relevant to assume that the same time will be spent in storing and reading
+the cached data from disk. These difference will corrupt the results in
+time evaluation.
+
+Moreover, avoiding the usage of caching techniques, is possible to
+retrieve a detailed picture of the actual memory usage of the algorithm at
+any time. 
+
+Another remark about measuring the memory used by the structure regards
+the language used for the implementation.
+In fact python features dynamic typing, this poses difficulties in the
+evaluation of the actual amount of memory used to store a
+particular object.
+
+For dealing with this issue,the memory used by an object is computed using
+the size of the C primitives types corresponding to the python types used.
+
+The last measure considered for evaluate the performances of the
+algorithm is the quality, or accuracy, of the classification performed. 
+This measure is very indicative in particular if compared with the time
+measure.
+In fact often, in many problems of computer science, the solution of a
+problem is a balance of the trade-off between time and quality.
+
+In the platform presented here the computation of the quality of the
+classification obtained is possible only when the system runs in cross
+validation mode. In fact, when performing this kind of test, is sure that
+even the testing dataset contains the correct classification.
+
+Therefore is easy to compare the classification computed by the algorithm
+with the real values in the dataset.
+The system finally computes the percentage of correctly classified
+datapoints over the size of the testing dataset.
+This value is considered the measure of the quality if the classification
+obtained.
+
+A possible drawback of this approach is represented by the particular
+situation in which a very large majority of the training datapoints
+belongs to the same class.
+The building of the decision tree, therefore, will be based on a large
+amount of informations from the largest class, while the other will be
+less represented in the final tree.
+
+A direct consequence of this is that the classifier will chose as class
+the major one more likely, generating many misclassifications for the
+least relevant class.
+
+The level of accuracy, anyway, will remain quite high, this because the
+large even in the test dataset the large majority of the data will belong
+to the most probable class. The elements in the least relevant class are
+so few that, even if most of them are not correctly classified, the
+accuracy level doesn't reflect this situation.
+
+\subsubsection{Reporting}
+The last task for the platform is to output some form of report
+illustrating the result obtained from an experiment.
+The method chosen for this platform is to implement a bash script that
+manages the execution of the two algorithms several times with different
+parameter on a dataset.
+
+This script reads the output of the program and collect the useful data,
+writing the results in a format usable with the utility gnuplot for being
+transfered into charts.
+
+This method provides a simple way to have an intuitive comparison between the
+results of the two different algorithms.
+
+\subsection{Decision Tree}
+The first algorithm considered for the comparison is a generic Decision
+Tree. Has been chosen because it's a well known approach and is a good
+base for a comparison with another algorithm.
+
+The measure chosen for selecting the attribute on which split the dataset
 
 \bibliographystyle{abbrv}
 \bibliography{report}
