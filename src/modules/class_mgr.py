@@ -93,10 +93,6 @@ class ClassMgr:
         while d != None:
             if d[lab] == d[-1]:
                 hit = hit + 1
-            elif d[lab] == '<=50K' and d[-1] != d[lab]:
-                err1 = err1 + 1
-            elif d[lab] == '>50K' and d[-1] != d[lab]:
-                err2 = err2 + 1
             count = count + 1
             d = in_arff.get_next()
         return float(hit) / float(count)
