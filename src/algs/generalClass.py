@@ -3,6 +3,13 @@
 import math
 
 class Node:
+    """
+    This class represents a node in the decision tree used for
+    classification.
+    The difference between a normal node and a leaf is that a leaf has no
+    child.
+    Label is the class which this node gives to the data.
+    """
     data = []    
     label = None
     attr = None
@@ -19,6 +26,10 @@ class Node:
         self.ign = []
 
 class Sorter:
+    """
+    This class is useful for managing the sorting of a list of lists based
+    on a choosen field
+    """
     def __init__(self, index, type):
         self.index = index
         self.type = type
@@ -39,7 +50,24 @@ class Sorter:
 
 
 class Classifier:
+    """
+    This class repersent the core of the classifier, contains the function
+    used for both building the tree and classify data.
+    """
     def __init__(self, ds_in, ds_out, attrs, cl_att, ign_att, thr_num):
+        """
+        In the constructor there is a check for the parameter which can
+        specify the number of thershold to test for the maximum
+        information gain for numeric values.
+
+        ds_in   input dataset
+        ds_out  output dataset
+        attrs   attributes of the dataset
+        cl_att  class attribute
+        ign_att array of attributes to be ignored in building the tree
+        thr_num number of thresold to test, if 0 a default parameter 7 is
+                used
+        """
         self.ds_in = ds_in
         self.ds_out = ds_out
         self.attrs = attrs
@@ -75,6 +103,11 @@ class Classifier:
         return self.nodes, self.leafs, self.cl_leafs
 
     def train_node(self, node):
+        """
+        This function train a single node, chosing the best attribute and
+        thresold for splitting
+        """
+
         self.nodes = self.nodes + 1
         trained = False
         labels = self.find_values(node.data, self.class_n)
@@ -142,6 +175,11 @@ class Classifier:
             
 
     def num_split_dataset(self, data, attr, value):
+        """
+        Splits the dataset with respect to a certain thresold, used for
+        numeric values
+        """
+
         sorter = Sorter(attr, self.attrs[attr][1])
         data.sort(sorter.cmp)
         i = 0
@@ -149,8 +187,22 @@ class Classifier:
             i = i + 1
         return data[:i],data[i:]
             
+    def split_dataset(self, data, att):
+        """
+        Splits the dataset with respect to the value of the field att
+        """
+        res = {}
+        for d in data:
+            if not res.has_key(d[att]):
+                res[d[att]] = []
+            res[d[att]].append(d)
+        return res
 
     def find_values(self, data, att):
+        """
+        Searches anc counts the occurences of different values in a list
+        of strings
+        """
         res = {}
         for d in data:
             if not res.has_key(d[att]):
@@ -159,16 +211,12 @@ class Classifier:
                 res[d[att]] = res[d[att]] + 1
         return res
 
-    def split_dataset(self, data, att):
-        res = {}
-        for d in data:
-            if not res.has_key(d[att]):
-                res[d[att]] = []
-            res[d[att]].append(d)
-        return res
-
-
     def info_gain(self, data, label, attr):
+        """
+        Computes the information gain of the label and the attribute att,
+        if att is a numeric attribute, the function comuputes the
+        conditional information gain for a b_size number of thresolds
+        """
         entr = self.entropy(data,label)
         if self.attrs[attr][1] == 'numeric':
             sorter = Sorter(attr, self.attrs[attr][1])
@@ -191,6 +239,9 @@ class Classifier:
             return entr - self.con_entropy(data, label, attr), None
 
     def entropy(self, data, attr):
+        """
+        Computes the entropy for an attribute, specified by att
+        """
         entr = 0
         sorter = Sorter(attr, self.attrs[attr][1])
         data.sort(sorter.cmp)
@@ -200,7 +251,29 @@ class Classifier:
             entr = entr - (pr * math.log(pr,2))
         return entr
 
+    def con_entropy(self, data, label, attr):
+        """
+        This funciton computes the conditional entropy of the label with
+        respect to a particular attribute
+        """
+
+        entr = 0
+        sorter = Sorter(attr, self.attrs[attr][1])
+        data.sort(sorter.cmp)
+        i = 0
+        entr = 0
+        while i < len(data):
+            sce = self.spec_con_entropy(data, label, attr, data[i][attr],i)
+            pr, i = self.prob(data, attr, 0, data[i][attr],i) 
+            entr = entr + (pr * sce)
+        return entr
+
+
     def spec_con_entropy(self, data, label, attr, value, k):
+        """
+        This function computes the specific conditional entropy of the
+        label with respect to an attribute attr with a specific value 
+        """
         entr = 0
         count = 0
         sel = []
@@ -216,19 +289,13 @@ class Classifier:
             entr = entr - (pr * math.log(pr, 2))
         return entr 
 
-    def con_entropy(self, data, label, attr):
-        entr = 0
-        sorter = Sorter(attr, self.attrs[attr][1])
-        data.sort(sorter.cmp)
-        i = 0
-        entr = 0
-        while i < len(data):
-            sce = self.spec_con_entropy(data, label, attr, data[i][attr],i)
-            pr, i = self.prob(data, attr, 0, data[i][attr],i) 
-            entr = entr + (pr * sce)
-        return entr
-
+    
     def num_con_entropy(self, data, label, attr, thres):
+        """
+        This function computes the specifc conditional entropy for a
+        numeric attribute, with respect to a particular attribute and a
+        specified threshold
+        """
         sorter = Sorter(attr, self.attrs[attr][1])
         data.sort(sorter.cmp)
         pr_less, i = self.prob(data, attr, -1, thres, 0)
@@ -238,6 +305,10 @@ class Classifier:
         return (en_less * pr_less) + (en_more * pr_more)
     
     def prob(self, data, attr, rel, value, i):
+        """
+        Utility function for computing the probability of a certain
+        condition in the dataset
+        """
         count = 0
         if rel == -1:
             while i < len(data) and data[i][attr] < value:
@@ -263,6 +334,11 @@ class Classifier:
     
             
     def classify(self, ds_test):
+        """
+        This function starts the classification task, launching the base
+        case for the recursive process
+        """
+
         attr = ds_test.get_attributes()
         attr.append([self.attrs[self.class_n][0]+'_label',self.attrs[self.class_n][1]])
         self.ds_out.write_headers(attr)
@@ -275,6 +351,12 @@ class Classifier:
         self.ds_out.store_buffer()
 
     def do_classification(self, node, sample, attr):
+        """
+        Recursive step for the classification task, this function visits
+        the nodes of the tree following the condition encountered at every
+        step
+        """
+
         if node.attr == -1:
             return node.label
         else:
