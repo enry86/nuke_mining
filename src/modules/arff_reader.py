@@ -30,7 +30,7 @@ class ArffReader:
             file = open(self.filename,'r')
             line = file.readline()
             while line.count('@DATA') == 0 and line != '':
-                if line.count('@ATTRIBUTE') != 0:
+                if line.count('@ATTRIBUTE') != 0 and line[0] != '%':
                     attr = line.split()[1:]
                     res.append(attr)
                 line = file.readline()
@@ -54,10 +54,11 @@ class ArffReader:
         file.seek(self.last_read)
         line = file.readline()
         while line != '' and count_lines < self.buffer_dim:
-            line = line.strip()
-            self.buffer.append(line.replace(' ',''))
+            if line[0] != '%' and line != '\n':
+                line = line.strip()
+                self.buffer.append(line.replace(' ',''))
+                count_lines += 1
             line = file.readline()
-            count_lines += 1
         self.last_read = file.tell() - len(line)
         file.close()
         return count_lines

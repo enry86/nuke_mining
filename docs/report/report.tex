@@ -4,6 +4,7 @@
 
 \title{Framework for comparison between classification algorithms}
 \numberofauthors{2}
+\author{Luca Gasparella, Enrico Sartori}
 
 \maketitle
 
@@ -167,15 +168,85 @@ An outline of the possible options is provided by the following list:
 \item{-d} File containing the testing dataset, mandatory if not in cross
 validation mode
 \item{-o} Output file, mandatory
-\item{-a} Class attribute, mandatory
+\item{-a} Name of the class attribute, mandatory
 \item{-c} Classifier (classifier\_name[,extra\_parameter]), optional
-(generic DT is the default choice)
+(generic DT is the default choice), possible names are generalClass or
+randomDT
 \item{-i} List of ignored attributes, optional
 \item{-x} Percentage of splitting for cross validation, optional, enables
 cross validation
 \end{description}
 
+Following the previous outline, an example of usage of the system could be
+this example:
+\begin{verbatim}
+./nukeminer -t training.arff -o output.arff \
+    -c randomDT,25 -a class -x 60
+\end{verbatim}
+
+Launched with this parameters the system executes a cross validation on
+the dataset training.arff, classifying on the attribute class. The system
+will use the 60\% of the data for training and the 40\% for testing. The
+output will be stored in the file output.arff, the algorithm used is the
+RDT and will use 25 random trees.
+
+At the end of the execution the system will output the time taken for
+train and test the classifier, the memory used to store the data structure
+used, and the accuracy reached in this execution.
+
+It's important to notice that the split of the dataset for the cross
+validation is performed following a random approach. In this way the
+original distribution of the data is preserved in both training and
+testing datasets.
+
+This is important to perform a good training of the classifier,
+particularly in datasets characterized by having most of the data all in a
+single class. This could lead to the situation in which there are no data
+belonging to minority class in the training dataset.
+Obviously this is a bad situation for training the algorithm.
+
+The technique used by this platform is to scan the dataset and decide for
+each datapoint if it belongs to the training or to the testing dataset,
+the probability of the outcome of this decision is the one specified by
+the user via command line.
+This technique assures a more fair division of the dataset.
+
+\subsubsection{File format}
+An important remark has to be done for the format of input/output files,
+in fact the platform uses a particular file format for handling the data.
+It's a simpler version of the ARFF syntax, adapted to fit the needs of the
+classification task to be performed.
+
+Is possible to define two types of data: numeric or string. The numeric
+type covers both integer and float values, while string is used for
+handling categorical data.
+
+For example the following lines represent the header of a dataset file:
+
+\begin{verbatim}
+@RELATION iris
+
+@ATTRIBUTE sepallength	numeric
+@ATTRIBUTE sepalwidth 	numeric
+@ATTRIBUTE petallength 	numeric
+@ATTRIBUTE petalwidth	numeric
+@ATTRIBUTE class string 
+
+@DATA
+\end{verbatim}
+
+This is the adapted header of the Iris dataset, after the keyword DATA
+is possible to write the tuples, as a list of values separated by a ','
+character, as in the following example:
+
+\begin{verbatim}
+@DATA
+5.1,3.5,1.4,0.2,Iris-setosa
+4.9,3.0,1.4,0.2,Iris-setosa
+4.7,3.2,1.3,0.2,Iris-setosa
+\end{verbatim}
+
+
 \bibliographystyle{abbrv}
 \bibliography{report}
-
 \end{document}
