@@ -118,48 +118,53 @@ class Forest:
         else:
             self.trees_n = 30
         self.trees = []
-        # Adding one to include the 
-        #if ( len(attributes) > 10 ):
-        #    self.tree_depth = (len(attributes) + 1 ) / 2
-        #else:
-        #    self.tree_depth = len(attributes) + 1 
-        self.tree_depth = len(attributes) + 1
+        # Adding one to include the classifying attribute, not in attributes
+        # for simplicity
+        if ( len(attributes) > 10 ):
+            self.tree_depth = (len(attributes) + 1 ) / 2
+        else:
+            self.tree_depth = len(attributes) + 1 
+        print "Tree depth = ", self.tree_depth
         self.attributes = attributes
         self.ranges = range
 
-    def visit_tree(self, tree, space, pos):
+    def visit_tree(self, tree, space, pos, show):
         """
             Only for testing propouse. It represents the tree
         """
         # If the node is None, it doesn't exist
         if tree == None:
-            return 0
+            return 0, 0
 
-        # If the element has type string, then print the childs name
-        if tree.label[1] == "string":
-            trh = ""
-            if (tree.childs != []) and (tree.childs != None):
-                for i in xrange(len(tree.childs)):
-                    if tree.childs[i] == None:
-                        trh = trh + " ,"
-                    else:
-                        trh = trh + tree.threshold[i] + ","
-        else: 
-            trh = str(tree.threshold)
+        if show:
+            # If the element has type string, then print the childs name
+            if tree.label[1] == "string":
+                trh = ""
+                if (tree.childs != []) and (tree.childs != None):
+                    for i in xrange(len(tree.childs)):
+                        if tree.childs[i] == None:
+                            trh = trh + " ,"
+                        else:
+                            trh = trh + tree.threshold[i] + ","
+            else: 
+                trh = str(tree.threshold)
 
-        # Print the attribute, its position, the threshold and the number of
-        # training examples through it
-        print space + tree.label[0] +' ('+pos+')'+'   '+trh+\
-                '                          '+str(tree.examples_n)
-        
+            # Print the attribute, its position, the threshold and the number of
+            # training examples through it
+            print space + tree.label[0] +' ('+pos+')'+'   '+trh+\
+                    '                          '+str(tree.examples_n)
+            
         if (tree.childs == None) or (tree.childs == []):
-            return 1
+            return 1, 1
         j = 0
         sum = 0
+        sum_l = 0
         for i in tree.childs:
-            sum += self.visit_tree(i,space + '   ',str(j))
+            nodes, leaves = self.visit_tree(i,space + '   ',str(j), show)
+            sum_l += leaves
+            sum += nodes
             j += 1
-        return sum + 1
+        return sum + 1, sum_l
 
 
 class Trainer:
@@ -188,15 +193,23 @@ class Trainer:
 
     def tree_updating(self, tree, element, full_attributes, attributes, ranges, depth,\
             class_attribute, class_att_pos):
+        """
+            This recursive procedure aims to build the tree little by little
+            the tuples come to train the model
+            tree        is the current position on the tree
+            element     is the tuple used to train the model
+            full_attributes
+                        is the complete list of attributes
+            attributes  is the list of attributes that can be chosen at the
+                        current level
+            ranges      is the list of possible value can be chosen at this
+                        level
+            class_attribute
+                        is the attribute to classify
+            class_att_pos
+                        is the order of the classification attribute
 
-        #print "ATTRS,", attributes, " DEPTH ", depth 
-
-        # If is the root node, tree is the Forest of RDT
-        #if depth == self.rdtForest.tree_depth:
-        #    node = RandomDT(attributes[:], ranges.copy())
-        #    tree.trees.append(node)
-        #    tree = node
-
+        """
         # Update the number of examples wrt classification attribute
         if ( not tree.examples_n.__contains__(element[class_att_pos]) ):
             tree.examples_n.__setitem__(element[class_att_pos], 1)
@@ -215,11 +228,6 @@ class Trainer:
 
         check_attr = full_attributes.index(tree.label)
         
-        #print "RANGES ", ranges
-
-        #if ( tree.label != attributes[class_attribute]):
-        #    print "ERROR: label is different", tree.label, attributes[class_attribute]
-
         # If the comparing attribute is a string
         if ( tree.label[1] == "string" ):
             
@@ -248,13 +256,10 @@ class Trainer:
                     child = RandomDT(full_attributes[class_att_pos], None)
                 else:
                     child = RandomDT(attributes, ranges)
-            
-                # Remove the value just checked, since for strings it cannot
-                # appear in the subtree by construction
-                #element.pop(check_attr)
                 tree.childs[position] = child
 
             tree = tree.childs[position]
+
         # If the comparing attribute is a value
         else:
             if float(element[check_attr]) < float(tree.threshold):
@@ -279,44 +284,37 @@ class Trainer:
 
                 tree.childs[dir] = child
             tree = tree.childs[dir]
-       
         self.tree_updating(tree, element, full_attributes, attributes, ranges, depth - 1,
                 class_attribute, class_att_pos)
 
-    def build_train(self, forest, full_attributes, attributes, ranges, depth, training_data,\
+    def build_train(self, forest, full_attributes, ranges, depth, training_data,\
             classification_attribute, classification_attribute_position):
-        
-        start0 = time.time()
-        self.rdtForest = forest
-
+        """
+            This procedure is charged to train all the RDT in the Forest,
+            performing the update of the all Forest for each tuple retrieved.
+        """
         tmp = training_data.pop(0)
         while tmp != None: 
             try:
-                start = time.time()
-
-                #print "TUPLE ", tmp
                 for i in xrange(forest.trees_n):
-                    current_attributes = attributes[:]
+                    current_attributes = forest.attributes[:]
                     current_ranges = ranges.copy()
+
+                    # At first time the tree doesn't exist, so is necessary to
+                    # generate it
                     if len(forest.trees) < forest.trees_n:
                         rdt = RandomDT(current_attributes, current_ranges)
-                        self.tree_updating(rdt, tmp, full_attributes,
-                                current_attributes, current_ranges, depth,\
+                        self.tree_updating(rdt, tmp, full_attributes, current_attributes, current_ranges, depth,\
                             classification_attribute, classification_attribute_position)
                         forest.trees.append(rdt)
                     else:
                         self.tree_updating(forest.trees[i], tmp, full_attributes, current_attributes, current_ranges, depth,\
                             classification_attribute, classification_attribute_position)
-
-                #break
-                #print tmp, " TRAINED IN ", time.time() - start
+                
                 tmp = training_data.pop(0) 
             except IndexError:
                 tmp = None
         
-        #print forest.visit_tree(forest.trees[0],'','root')
-        print "FOREST TRAINED ======== ", time.time() - start0
-
 
 class Classifier:
     def __init__(self, dataset, ranges, out_arff, attrs, cl_attr, ign_attr, trees_n):
@@ -332,15 +330,13 @@ class Classifier:
         random.seed(time.time())
 
         self.data = dataset
-        self.ranges = ranges
-        #self.training = tr_arff
-        self.outgoing = out_arff
         self.full_attributes = attrs
-        self.attributes, self.ignore_att_pos, self.class_att_pos = self.purify(attrs, cl_attr, ign_attr)
+        attributes, self.ignore_att_pos, self.class_att_pos = self.purify(attrs, cl_attr, ign_attr)
         self.class_attribute = cl_attr
         self.ignore_attribute = ign_attr
-        self.rdtForest = None
         self.trees_n = trees_n
+        self.rdtForest = Forest(self.trees_n, attributes, ranges)
+        self.outgoing = out_arff
 
     def purify (self, attrs, cl_attr, ign_attr):
         """
@@ -355,8 +351,10 @@ class Classifier:
         ignore_list = []
         dim = len(attrs)
         class_att_pos = None
+
         for i in xrange(dim):
             tmp = attrs_tmp.pop()
+
             if (cl_attr != tmp[0]):
                 if (not ign_attr.__contains__(tmp[0])):
                     holy_list.append(tmp)
@@ -365,12 +363,9 @@ class Classifier:
             else: 
                 class_att_pos = dim - 1 - i
                 ignore_list.append( class_att_pos )
-        ignore_list.sort()
+
         holy_list.reverse()
         return holy_list, ignore_list, class_att_pos
-
-    def calculate_dimension(self):
-        return int(math.pow(len(self.attributes), 2)), int(math.pow(2, len(self.attributes) - 1)), []
 
     def train(self):
         """
@@ -378,15 +373,19 @@ class Classifier:
             the list of attributes, train all the RDTs contained in the Forest
             with the data
         """
-        self.rdtForest = Forest(self.trees_n, self.attributes, self.ranges)
-
         trainer = Trainer()
-        attributes = self.attributes[:]
-        trainer.build_train(self.rdtForest, self.full_attributes, attributes, self.rdtForest.ranges.copy(),\
+        trainer.build_train(self.rdtForest, self.full_attributes, self.rdtForest.ranges.copy(),\
                 self.rdtForest.tree_depth, self.data, self.class_attribute, self.class_att_pos)
-        
-        return self.calculate_dimension()
-    
+
+    def count_nodes(self):
+        """
+            This function is charged to count the number of node and leaves in
+            the tree
+        """
+        tree = random.randrange(self.rdtForest.trees_n)
+        nodes, leaves = self.rdtForest.visit_tree(self.rdtForest.trees[tree],'','root',0)
+        return nodes, leaves
+
     def loss_function(self, predictions):
         """
             This is the function that is charged to do the prediction once the
@@ -409,32 +408,30 @@ class Classifier:
         """
         sum = dict()
         total = 0
-        #start = time.time()
+
         for i in xrange(len(self.rdtForest.trees)):
-            #start1 = time.time()
+            start = time.time()
             prediction =  self.rdtForest.trees[i].get_probability(tuple,\
                 attributes)
-            #print "TUPLE TREE CLASSIFICATION TIME, ", time.time() - start1
-            
+
+            # The tuple was not recognized by the model
             if prediction == None:
-       #         print "UNKNOWN"
                 return "UNKNOWN"
-            #try:
+
             for class_label in prediction:
                 if (not sum.__contains__(class_label)):
                     sum.__setitem__(class_label, 0)
                 sum[class_label] += prediction[class_label]
                 total += prediction[class_label]
-            #except TypeError:
-            #    print "TUPLE", tuple, prediction
-            #    return None
-        
+
         for i in sum:
             sum[i] = sum[i]/len(self.rdtForest.trees)
+        
+        print "PREDICTED IN ", time.time() - start
+
         if sum == {}:
-        #    print "SUMM IS UNKNOWN, but PREDICTION is ", prediction
+            print "SUM IS NULL"
             return "UNKNOWN"
-        #print "TUPLE CLASSIFICATION TIME ", time.time() - start
         return self.loss_function(sum)
 
     def classify(self, file):
@@ -445,11 +442,6 @@ class Classifier:
             output file.
             file        the dataset to classify, in arff format
         """
-        #print "\nATTRIBUTES ", self.full_attributes
-        #print "==================================="
-        #print "\nRANGES ", self.rdtForest.ranges
-        #print "==================================="
-        print self.rdtForest.visit_tree(self.rdtForest.trees[0],'','root')
         unknown = 0
         total = 0
         
@@ -466,9 +458,9 @@ class Classifier:
             self.outgoing.write_data(tmp)
             tmp = file.get_next()
 
-            #if prediction == "UNKNOWN":
-            #    unknown += 1
-            #total += 1
+            if prediction == "UNKNOWN":
+                unknown += 1
+            total += 1
 
-        #print "\n\nTOTAL, ",total," of which UNKNOWN are ", unknown
+        print "\n\nTOTAL, ",total," of which UNKNOWN are ", unknown
         self.outgoing.store_buffer()
