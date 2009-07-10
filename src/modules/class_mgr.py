@@ -27,8 +27,7 @@ class ClassMgr:
         """
         self.attrs = tr_arff.get_attributes()
         self.cl_attr = cl_attr
-	
-	self.data, range = retrieve_range(copy.deepcopy(tr_arff), self.attrs, ign_att)
+	    self.data, range = retrieve_range(copy.deepcopy(tr_arff), self.attrs, ign_att)
 
         if class_par == None:
             class_par = 0
