@@ -487,6 +487,11 @@ class Classifier:
             collect data into the memory
             If data presents "?" it is ignored
         """
+        import copy
+        self.elements = []
+        second = copy.deepcopy(self.training)
+        start = time.time()
+
         import sys
         range = dict()
         temp = self.training.get_next()
@@ -515,6 +520,27 @@ class Classifier:
                         range[attr] = new
             self.data.append(temp)
             temp = self.training.get_next()
+
+        print "RETRIEVE RANGES ", time.time() - start
+
+        start = time.time()
+
+        temp = second.get_next()
+        while temp != None:
+            temp = second.get_next()
+            self.elements.append(temp)
+
+        print "JUST SCANNING ", time.time() - start
+
+        start = time.time()
+        temp = self.data.pop(0)
+        while temp != None:
+            try:
+                temp = self.data.pop(0)
+            except IndexError:
+                temp = None
+        print "RAM ", time.time() - start
+
         return range
 
     def purify (self, attrs, cl_attr, ign_attr):

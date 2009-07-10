@@ -68,7 +68,7 @@ class Classifier:
         thr_num number of thresold to test, if 0 a default parameter 7 is
                 used
         """
-        self.ds_in = ds_in
+        #self.ds_in = ds_in
         self.ds_out = ds_out
         self.attrs = attrs
         self.cl_att = cl_att

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import copy
 import generalClass
 import randomDT
 import random
@@ -26,6 +27,9 @@ class ClassMgr:
         """
         self.attrs = tr_arff.get_attributes()
         self.cl_attr = cl_attr
+	
+	self.data, range = retrieve_range(copy.deepcopy(tr_arff), self.attrs, ign_att)
+
         if class_par == None:
             class_par = 0
         else:
@@ -45,7 +49,6 @@ class ClassMgr:
         else:
             raise NoAlgException
 
-    
     def create_cross_ds(self, data, per, attr):
         """
         This function splits the dataset as specified via command line for
@@ -112,3 +115,40 @@ class ClassMgr:
         cl_stop = time.time()
         cl_time = cl_stop - cl_start
         return tr_time, cl_time, nodes, leafs, cl_leafs
+
+
+def retrieve_range(training, attributes, ignore_attributes):
+    """
+       This procedure acquire the range of each attribute in the training dataset and
+       collect data into the memory
+    """
+    data = []
+    range = dict()
+    temp = training.get_next()
+    dim = len(temp)
+
+    while temp != None:
+        for i in xrange(dim):
+            if (attributes[i] not in ignore_attributes):
+                attr = attributes[i][0]
+                # If attribute is not in list, then add it
+                if (not range.__contains__(attr)):
+                    range.__setitem__(attr, [])
+        
+                if (attributes[i][1] == "string"):
+                    if (not range[attr].__contains__(temp[i])):
+                        range[attr].append(temp[i])
+                else:
+                    if (range[attr] == []):
+                        range[attr] = [sys.maxint, 0]
+                    new = range[attr]
+                    # So this is numeric or real
+                    if range[attr][0] > float(temp[i]):
+                        new[0] = float(temp[i])
+                    if range[attr][1] < float(temp[i]):
+                        new[1] = float(temp[i])
+                    range[attr] = new
+        data.append(temp)
+        temp = training.get_next()
+
+    return data, range
