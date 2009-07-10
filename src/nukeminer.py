@@ -81,7 +81,7 @@ def main():
         ign_att = []
     manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg,\
     arff_out, ign_att, cross_per, class_par)
-    tt, ct, nodes, leafs, cl_leafs = manager.perform_test()
+    tt, ct, nodes, leafs = manager.perform_test()
     if cross:
         acc = manager.get_accuracy(opts['out_file'])
         print 'Accuracy =', acc 

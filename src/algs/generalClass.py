@@ -80,7 +80,6 @@ class Classifier:
         self.root.ign = ign_att
         self.nodes = 0
         self.leafs = 0
-        self.cl_leafs = {}
         if thr_num == 0:
             self.b_size = 7;
         else:
@@ -88,7 +87,9 @@ class Classifier:
 
     def train(self):
         self.train_node(self.root)
-        return self.nodes, self.leafs, self.cl_leafs
+
+    def count_nodes(self):
+        return self.nodes, self.leafs
 
     def train_node(self, node):
         """
@@ -118,10 +119,6 @@ class Classifier:
         if len(labels) <= 1:
             trained = True
             self.leafs = self.leafs + 1
-            if self.cl_leafs.has_key(node.label):
-                self.cl_leafs[node.label] = self.cl_leafs[node.label] + 1
-            else:
-                self.cl_leafs[node.label] = 1
         if not trained:
             max = 0.0
             max_att = 0
@@ -136,10 +133,6 @@ class Classifier:
             if max == 0.0:
                 trained = True
                 self.leafs = self.leafs + 1
-                if self.cl_leafs.has_key(node.label):
-                    self.cl_leafs[node.label] = self.cl_leafs[node.label] + 1
-                else:
-                    self.cl_leafs[node.label] = 1
             else:
                 node.attr = max_att
                 node.value = max_tr

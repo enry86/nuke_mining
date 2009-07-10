@@ -144,13 +144,14 @@ class ClassMgr:
         data, the number of total nodes and the number of leafs
         """
         tr_start = time.time()
-        nodes, leafs, cl_leafs = self.alg.train()
+        self.alg.train()
         tr_stop = time.time()
         tr_time = tr_stop - tr_start
+        nodes, leafs = self.alg.count_nodes()
         cl_start = time.time()
         self.alg.classify(self.ts_arff)
         cl_stop = time.time()
         cl_time = cl_stop - cl_start
-        return tr_time, cl_time, nodes, leafs, cl_leafs
+        return tr_time, cl_time, nodes, leafs
 
 
