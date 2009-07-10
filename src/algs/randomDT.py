@@ -382,8 +382,8 @@ class Classifier:
             This function is charged to count the number of node and leaves in
             the tree
         """
-        tree = random.randrange(self.rdtForest.trees_n)
-        nodes, leaves = self.rdtForest.visit_tree(self.rdtForest.trees[tree],'','root',0)
+        self.random_tree = random.randrange(self.rdtForest.trees_n)
+        nodes, leaves =  self.rdtForest.visit_tree(self.rdtForest.trees[self.random_tree],'','root',0)
         return nodes, leaves
 
     def loss_function(self, predictions):
@@ -495,22 +495,35 @@ class Classifier:
 
         self.outgoing.store_buffer()
 
-    def get_memory_node(node):
+    def get_memory_node(self, node):
         '''
             visits the tree summing the memory occupied by each node
         '''
-        memo = 128
-        memo = memo + (64 * len(node.child))
-        memo = memo + (32 * len(node.ign))
-        for c in node.child:
-            memo = memo + get_memory_node(node.child[c])
-        return (memo / 8)
+        # Label is a list build up of two strings
+        memo = 32 + 32 + 32
+        # Threshold may be a REAL if the type of the attribute is REAL (or
+        # numeric) or it can be a list of strings indicating the
+        # childs-connection's name
+        if node.label[1] == "string":
+            memo = memo + 32 + (32 * len(node.threshold))
+        else:
+            memo = memo + 64
+        # Examples_n is a dictionary, it contains the Class Attribute name as
+        # key and a integer that counts how many examples pass through it
+        memo = memo + 32 + (32 * len(node.examples_n))
+        # Childs
+        if node.childs != None:
+            for child_n in xrange(len(node.childs)):
+                if ( node.childs[child_n] != None ):
+                    memo = memo + 32 + self.get_memory_node(node.childs[child_n])
+        return memo
 
-    def get_memory():
+    def get_memory(self):
         '''
             retrieves the total memory consumption for the tree and transform it into a string
         '''
-        tot = get_memory_node(self.root)
+        tot = self.get_memory_node(self.rdtForest.trees[self.random_tree]) / 8
+        tot = tot * self.rdtForest.trees_n
         if tot >= 1000000:
             return str(float(tot) / (1024 * 1024)) + ' MB'
         elif tot >= 1000:
