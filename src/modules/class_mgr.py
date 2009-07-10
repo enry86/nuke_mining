@@ -29,20 +29,19 @@ class ClassMgr:
         self.cl_attr = cl_attr
         ignore_attributes = ign_att
         ignore_attributes.append(cl_attr)
-        self.data, ranges = self.retrieve_ranges(copy.deepcopy(tr_arff),
-                self.attrs, ignore_attributes)
         if class_par == None:
             class_par = 0
         else:
             class_par = int(class_par)
         if cross_per == -1:
-            self.ts_arff = ts_arff
-            self.tr_arff = tr_arff 
+            self.tr_arff = tr_arff
         else:
             self.tr_arff, self.ts_arff = self.create_cross_ds(tr_arff,\
             cross_per, self.attrs)
+        self.data, ranges = self.retrieve_ranges(\
+            copy.deepcopy(self.tr_arff), self.attrs, ignore_attributes)
         if alg_name == 'generalClass':
-            self.alg = generalClass.Classifier(self.tr_arff, out_arff,\
+            self.alg = generalClass.Classifier(self.data, out_arff,\
             self.attrs, cl_attr, ign_att, class_par)
         elif alg_name == 'randomDT':
             self.alg = randomDT.Classifier(self.data, ranges, out_arff,\
