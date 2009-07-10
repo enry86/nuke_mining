@@ -29,7 +29,7 @@ class ClassMgr:
         self.cl_attr = cl_attr
         ignore_attributes = ign_att
         ignore_attributes.append(cl_attr)
-        self.data, range = self.retrieve_ranges(copy.deepcopy(tr_arff),
+        self.data, ranges = self.retrieve_ranges(copy.deepcopy(tr_arff),
                 self.attrs, ignore_attributes)
         if class_par == None:
             class_par = 0
@@ -134,6 +134,8 @@ class ClassMgr:
                 hit = hit + 1
             count = count + 1
             d = in_arff.get_next()
+        if count == 0:
+            return float(0)
         return float(hit) / float(count)
 
     def perform_test(self):
