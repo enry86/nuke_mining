@@ -35,6 +35,7 @@ class ClassMgr:
             class_par = int(class_par)
         if cross_per == -1:
             self.tr_arff = tr_arff
+            self.ts_arff = ts_arff
         else:
             self.tr_arff, self.ts_arff = self.create_cross_ds(tr_arff,\
             cross_per, self.attrs)
