@@ -334,5 +334,28 @@ class Classifier:
                 return self.do_classification(node.child[child], sample,\
                 attr)
 
+    def get_memory(self):
+        '''
+        retrieves the total memory consumption for the tree and transform
+        it into a string
+        '''
+        tot = self.get_memory_node(self.root) / 8
+        if tot >= 1000000:
+            return str(float(tot) / (1024 * 1024)) + ' MB'
+        elif tot >= 1000:
+            return str(float(tot) / 1024) + ' KB'
+        else:
+            return str(tot) + ' Bytes'
 
-        
+
+    def get_memory_node(self, node):
+        '''
+        visits the tree summing the memory occupied by each node
+        '''
+        memo = 128
+        memo = memo + (64 * len(node.child))
+        memo = memo + (32 * len(node.ign))
+        for c in node.child:
+            tmp = self.get_memory_node(node.child[c])
+            memo = memo + tmp
+        return memo  

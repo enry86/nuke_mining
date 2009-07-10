@@ -81,7 +81,7 @@ def main():
         ign_att = []
     manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg,\
     arff_out, ign_att, cross_per, class_par)
-    tt, ct, nodes, leafs = manager.perform_test()
+    tt, ct, nodes, leafs, memo = manager.perform_test()
     if cross:
         acc = manager.get_accuracy(opts['out_file'])
         print 'Accuracy =', acc 
@@ -89,7 +89,7 @@ def main():
     print 'Classification time =', ct
     print 'Nodes =', nodes
     print 'Leafs =', leafs
-    print 'Memory = Uff, a lot XD'
+    print 'Memory =', memo
     return 0,None
 
 if __name__ == '__main__':

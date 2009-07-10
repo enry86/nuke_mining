@@ -149,10 +149,11 @@ class ClassMgr:
         tr_stop = time.time()
         tr_time = tr_stop - tr_start
         nodes, leafs = self.alg.count_nodes()
+        memo = self.alg.get_memory()
         cl_start = time.time()
         self.alg.classify(self.ts_arff)
         cl_stop = time.time()
         cl_time = cl_stop - cl_start
-        return tr_time, cl_time, nodes, leafs
+        return tr_time, cl_time, nodes, leafs, memo
 
 
