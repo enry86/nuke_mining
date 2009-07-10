@@ -93,63 +93,6 @@ class RandomDT:
                 ranges[self.label[0]][1]]
         return ranges_tmp_sx, ranges_tmp_dx
 
-    def generate_tree(self, attributes, ranges, depth):
-        """
-           Generate the tree according to the attributes, chosing randomly at
-           each node one of them. In particular the depth of tree is set on
-           the dimension of attributes
-           attributes   is the list of attributes
-           ranges       is a dictionary of 'attribues': 'ranges'
-           depth        is the forseen depth
-        """
-        # If there are no mode attributes or the depth is zero, the return a
-        # node leaf
-        if (depth == 0) or (attributes == []):
-            return None
-        
-        #print "\nLEVEL ", depth,"   CURRENT", self.label
-        #print "ATTRIBUTES ", attributes
-        #print "RANGES ", ranges
-
-        node = []
-        if self.label[1] == "string":
-            # Generate the number of childs accordingly with the possibile
-            # elements
-            current_ranges = ranges.copy()
-            current_attributes = attributes[:]
-
-            for i in self.threshold:
-                ranges = current_ranges.copy()
-                attributes = current_attributes[:]
-                
-                #print "CHILD BEFORE, ",ranges
-                child = RandomDT(attributes, ranges)
-                #print "CHILD AFTER, ", ranges
-                child.childs = child.generate_tree(attributes, ranges, depth - 1)
-                node.append(child)
-        else:
-            # Generate two childs for according with the threshold
-            r_sx, r_dx = self.range_splitting(attributes, ranges)
-            left_child = RandomDT(attributes, ranges)
-            right_child = RandomDT(attributes, ranges)
-
-            left_child.childs = left_child.generate_tree(attributes, r_sx, depth - 1)
-            right_child.childs = right_child.generate_tree(attributes, r_dx, depth - 1)
-        
-            node.append(left_child)
-            node.append(right_child)
-        return node
-
-    def generate(self, attributes, ranges, depth):
-        """
-            Generate the Forest of RDT
-            attributes      ['Attribute_name', 'Attribute_value']
-            ranges          
-                if Attribute is STRING  ['Attribute_name', ['value_1', ..., 'value_n']
-                else                    ['Attribute_name', [min_value,  max_value]]
-        """
-        self.childs = self.generate_tree(attributes, ranges, depth - 1)
-
 
 class Forest:
     """
@@ -192,10 +135,18 @@ class Forest:
         if tree == None:
             return 0
 
-        if tree.label[1] != "string":
-            trh = str(tree.threshold)
+        # If the element has type string, then print the childs name
+        if tree.label[1] == "string":
+            trh = ""
+            if (tree.childs != []) and (tree.childs != None):
+                for i in xrange(len(tree.childs)):
+                    if tree.childs[i] == None:
+                        trh = trh + ", ,"
+                    else:
+                        trh = trh + tree.threshold[i]
         else:
-            trh = "LIST"
+            trh = str(tree.threshold)
+
         # Print the attribute, its position, the threshold and the number of
         # training examples through it
         print space + tree.label[0] +' ('+pos+')'+'   '+trh+\
@@ -209,24 +160,6 @@ class Forest:
             sum += self.visit_tree(i,space + '   ',str(j))
             j += 1
         return sum + 1
-
-    def populate(self):
-        """
-            Generate tree_n different RDT based on the attributes given but
-            ignoring data
-        """
-        depth = self.tree_depth
-
-        for i in xrange(self.trees_n):
-            start = time.time()
-            attributes = self.attributes[:]
-            ranges = self.ranges.copy()
-            start2 = time.time()
-
-            rdt = RandomDT(attributes, ranges)
-            rdt.generate(attributes, ranges, depth)
-            self.trees.append(rdt)
-            #print "JUST BUILT ", start2 - start, time.time() - start2
 
 
 class Trainer:
@@ -252,79 +185,6 @@ class Trainer:
             expansion_2 = math.log(i + 1)
             expanded_example.append([i, expansion_1, expansion_2])
         return expanded_example
-
-    def tree_training(self, tree, element, attributes, ignore, class_att):
-        """
-            Perform the training of a tree basing the entire dataset
-            tree        is the current tree to train
-            element     is the tuple the tree should be trained with
-            ignore      are the position of the tuple to ignore
-            class_att   is the position of the classifying attribute
-        """
-        #print "ATT", attributes
-        #print "Class_att", class_att, "\n"
-
-        while tree != None:
-            #print "Element", element, "\nTree", tree.label, "\nto check", attributes.index(tree.label)
-            check_attr = attributes.index(tree.label)
-            
-            if ( not tree.examples_n.__contains__(element[class_att]) ):
-                tree.examples_n.__setitem__(element[class_att], 1)
-            else:
-                tree.examples_n[element[class_att]] += 1
-            
-            if (tree.label != attributes[class_att]):# and (element[check_attr] != "?"):
-                if tree.label[1] == "string":
-                    pos = tree.threshold.index(element[check_attr])
-                    if tree.childs == None:
-                        tree.childs = [None] * len(tree.threshold)
-                    
-                    if tree.childs[pos] == None:
-                        tree.childs[pos] = RandomDT(attributes[class_att], None)
-                        tree.childs[pos].examples_n.__setitem__(element[class_att], 1)
-                    #   tree = None
-                    #else:
-                    #    tree = tree.childs[pos]
-                    tree = tree.childs[pos]
-
-                else:
-                    if tree.childs == None:
-                        tree.childs = [None, None]
-                    
-                    if float(element[check_attr]) < float(tree.threshold):
-                        dir = 0
-                    else:
-                        dir = 1
-
-                    if tree.childs[dir] == None:
-                        tree.childs[dir] = RandomDT(attributes[class_att], None)
-                        tree.childs[dir].examples_n.__setitem__(element[class_att], 1)
-
-                    tree = tree.childs[dir]
-            else:
-                tree = None
-
-    def train (self, rdt_forest, training_data, attributes, ignore_attributes, class_att_pos):
-        """
-            The procedure aims to train the rdtForest given a starting dataset
-            rdt_forest          is the forest of RDT
-            training_data       is the dataset in Main Memory
-            ignore_attributes   are the positions to ignore of a tuple
-            class_att_pos       is the position of the classifying attribute
-        """
-        start0 = time.time()
-        tmp = training_data.pop(0)
-        while tmp != None: 
-            try:
-                #start = time.time()
-                for i in rdt_forest.trees:
-                    self.tree_training(i, tmp, attributes, ignore_attributes, class_att_pos)
-                #print tmp, "TRAINED IN ", time.time() - start
-                tmp = training_data.pop(0) 
-            except IndexError:
-                tmp = None
-        #print "ALL TRAINED ", time.time() - start0 
-   
 
     def tree_updating(self, tree, element, full_attributes, attributes, ranges, depth,\
             class_attribute, class_att_pos):
@@ -421,7 +281,6 @@ class Trainer:
         self.tree_updating(tree, element, full_attributes, attributes, ranges, depth - 1,
                 class_attribute, class_att_pos)
 
-
     def build_train(self, forest, full_attributes, attributes, ranges, depth, training_data,\
             classification_attribute, classification_attribute_position):
         
@@ -457,7 +316,6 @@ class Trainer:
         print "FOREST TRAINED ======== ", time.time() - start0
 
 
-
 class Classifier:
     def __init__(self, dataset, ranges, out_arff, attrs, cl_attr, ign_attr, trees_n):
         """
@@ -481,68 +339,6 @@ class Classifier:
         self.ignore_attribute = ign_attr
         self.rdtForest = None
         self.trees_n = trees_n
-
-    def retrieve_range(self):
-        """
-            This procedure acquire the range of each attribute in the training dataset and
-            collect data into the memory
-            If data presents "?" it is ignored
-        """
-        import copy
-        self.elements = []
-        second = copy.deepcopy(self.training)
-        start = time.time()
-
-        import sys
-        range = dict()
-        temp = self.training.get_next()
-        dim = len(temp)
-
-        while temp != None:
-            for i in xrange(dim):
-                if (i not in self.ignore_att_pos):# and (temp[i] != "?"):
-                    attr = self.full_attributes[i][0]
-                    # If attribute is not in list, then add it
-                    if (not range.__contains__(attr)):
-                        range.__setitem__(attr, [])
-            
-                    if (self.full_attributes[i][1] == "string"):
-                        if (not range[attr].__contains__(temp[i])):
-                            range[attr].append(temp[i])
-                    else:
-                        if (range[attr] == []):
-                            range[attr] = [sys.maxint, 0]
-                        new = range[attr]
-                        # So this is numeric or real
-                        if range[attr][0] > float(temp[i]):
-                            new[0] = float(temp[i])
-                        if range[attr][1] < float(temp[i]):
-                            new[1] = float(temp[i])
-                        range[attr] = new
-            self.data.append(temp)
-            temp = self.training.get_next()
-
-        print "RETRIEVE RANGES ", time.time() - start
-
-        start = time.time()
-
-        temp = second.get_next()
-        while temp != None:
-            temp = second.get_next()
-            self.elements.append(temp)
-
-        print "JUST SCANNING ", time.time() - start
-
-        start = time.time()
-        temp = self.data.pop(0)
-        while temp != None:
-            try:
-                temp = self.data.pop(0)
-            except IndexError:
-                temp = None
-        print "RAM ", time.time() - start
-
-        return range
 
     def purify (self, attrs, cl_attr, ign_attr):
         """
@@ -651,7 +447,7 @@ class Classifier:
         #print "==================================="
         #print "\nRANGES ", self.rdtForest.ranges
         #print "==================================="
-        #print self.rdtForest.visit_tree(self.rdtForest.trees[0],'','root')
+        print self.rdtForest.visit_tree(self.rdtForest.trees[0],'','root')
         unknown = 0
         total = 0
         

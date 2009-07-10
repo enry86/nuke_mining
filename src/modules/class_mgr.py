@@ -27,7 +27,10 @@ class ClassMgr:
         """
         self.attrs = tr_arff.get_attributes()
         self.cl_attr = cl_attr
-        self.data, range = self.retrieve_ranges(copy.deepcopy(tr_arff), self.attrs, ign_att)
+        ignore_attributes = ign_att
+        ignore_attributes.append(cl_attr)
+        self.data, range = self.retrieve_ranges(copy.deepcopy(tr_arff),
+                self.attrs, ignore_attributes)
         if class_par == None:
             class_par = 0
         else:
@@ -59,7 +62,7 @@ class ClassMgr:
 
         while temp != None:
             for i in xrange(dim):
-                if (attributes[i] not in ignore_attributes):
+                if (attributes[i][0] not in ignore_attributes):
                     attr = attributes[i][0]
                     # If attribute is not in list, then add it
                     if (not range.__contains__(attr)):
