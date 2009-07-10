@@ -117,6 +117,7 @@ class Classifier:
            node.label = l_max_val
         if len(labels) <= 1:
             trained = True
+            del node.data
             self.leafs = self.leafs + 1
         if not trained:
             max = 0.0
@@ -131,6 +132,7 @@ class Classifier:
                         max_tr = tr
             if max == 0.0:
                 trained = True
+                del node.data
                 self.leafs = self.leafs + 1
             else:
                 node.attr = max_att
@@ -147,6 +149,8 @@ class Classifier:
                 for v in vals:
                     node.child[v] = Node()
                     node.child[v].data = vals[v]
+            if not trained:
+                del node.data
             for c in node.child:
                 node.child[c].ign = node.ign
                 node.child[c].label = node.label
