@@ -380,6 +380,18 @@ Tree. Has been chosen because it's a well known approach and is a good
 base for a comparison with another algorithm.
 
 The measure chosen for selecting the attribute on which split the dataset
+is the information gain.
+The computing of this measure on categorical values is quite a simple
+operation. When considering numerical values the situation changes, in
+fact considering the specific conditional entropy for every possible value
+assumed by a numerical attribute is a waste of resource and won't give
+reliable results.
+
+A different approach, followed in this implementation of the algorithm, is
+to compute the information gain of a threshold on which split the dataset.
+In this way a node is split in two children, one containing the data with
+the chosen attribute less than the selected threshold and the other
+containing the rest 
 
 \bibliographystyle{abbrv}
 \bibliography{report}

@@ -84,12 +84,12 @@ def main():
     tt, ct, nodes, leafs, cl_leafs = manager.perform_test()
     if cross:
         acc = manager.get_accuracy(opts['out_file'])
-    else:
-        acc = ''
-    print acc, tt, ct
-    print nodes, leafs,
-    for i in cl_leafs:
-        print cl_leafs[i],
+        print 'Accuracy =', acc 
+    print 'Training time =', tt
+    print 'Classification time =', ct
+    print 'Nodes =', nodes
+    print 'Leafs =', leafs
+    print 'Memory = Uff, a lot XD'
     return 0,None
 
 if __name__ == '__main__':
