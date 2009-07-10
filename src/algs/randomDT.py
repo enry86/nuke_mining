@@ -39,13 +39,12 @@ class RandomDT:
             self.childs = None
         else:
             # Root node 
-            random.seed(time.time())
             random_element = random.choice(attributes)
             self.label = random_element
     
             if random_element[1] == 'string':
                 self.threshold = ranges[random_element[0]]
-                attributes.pop(attributes.index(random_element))
+                attributes.remove(random_element)
                 ranges.pop(random_element[0])
             else:
                 self.threshold = random.uniform(ranges[random_element[0]][0],\
@@ -65,7 +64,10 @@ class RandomDT:
             value = tuple[attributes.index(tree.label)]
             parent = tree
             if tree.label[1] == "string":
-                tree = tree.childs[tree.threshold.index(value)]
+                try:
+                    tree = tree.childs[tree.threshold.index(value)]
+                except ValueError:
+                    return None
             else:
                 if float(value) < float(tree.threshold):
                     tree = tree.childs[0]
@@ -100,16 +102,14 @@ class RandomDT:
            ranges       is a dictionary of 'attribues': 'ranges'
            depth        is the forseen depth
         """
-
-        
+        # If there are no mode attributes or the depth is zero, the return a
+        # node leaf
         if (depth == 0) or (attributes == []):
             return None
         
-        #print "\nLEVEL", depth
+        #print "\nLEVEL ", depth,"   CURRENT", self.label
         #print "ATTRIBUTES ", attributes
         #print "RANGES ", ranges
-
-        #print "CURRENT", self.label
 
         node = []
         if self.label[1] == "string":
@@ -122,7 +122,9 @@ class RandomDT:
                 ranges = current_ranges.copy()
                 attributes = current_attributes[:]
                 
+                #print "CHILD BEFORE, ",ranges
                 child = RandomDT(attributes, ranges)
+                #print "CHILD AFTER, ", ranges
                 child.childs = child.generate_tree(attributes, ranges, depth - 1)
                 node.append(child)
         else:
@@ -164,7 +166,8 @@ class Forest:
             is 30 as suggested in order to obtain a good estimate with low
             variance.
             trees_n     is the number of tree to construct
-            attributes  are the dataset's useful attributes
+            attributes  are the dataset's attributes without both the ignoring
+                        ones and the classification one
             range       is the range of the continuous dataset's attributes
         """
         if (trees_n != 0) and (trees_n != None):
@@ -172,10 +175,12 @@ class Forest:
         else:
             self.trees_n = 30
         self.trees = []
-        if ( len(attributes) > 10 ):
-            self.tree_depth = len(attributes) / 2
-        else:
-            self.tree_depth = len(attributes)
+        # Adding one to include the 
+        #if ( len(attributes) > 10 ):
+        #    self.tree_depth = (len(attributes) + 1 ) / 2
+        #else:
+        #    self.tree_depth = len(attributes) + 1 
+        self.tree_depth = len(attributes) + 1
         self.attributes = attributes
         self.ranges = range
 
@@ -183,39 +188,45 @@ class Forest:
         """
             Only for testing propouse. It represents the tree
         """
+        # If the node is None, it doesn't exist
         if tree == None:
-            return True
+            return 0
 
-        if tree.label == " ":
-            print space + "LEAF" +' ('+pos+')'+'   '+ str(tree.examples_n)
-            return True
-        elif tree.label[1] != "string":
+        if tree.label[1] != "string":
             trh = str(tree.threshold)
         else:
             trh = "LIST"
-        
+        # Print the attribute, its position, the threshold and the number of
+        # training examples through it
         print space + tree.label[0] +' ('+pos+')'+'   '+trh+\
                 '                          '+str(tree.examples_n)
         
         if (tree.childs == None) or (tree.childs == []):
-            return True
+            return 1
         j = 0
+        sum = 0
         for i in tree.childs:
-            self.visit_tree(i,space + '   ',str(j))
+            sum += self.visit_tree(i,space + '   ',str(j))
             j += 1
+        return sum + 1
 
     def populate(self):
         """
             Generate tree_n different RDT based on the attributes given but
             ignoring data
         """
-        attributes = self.attributes[:]
-        ranges = self.ranges.copy()
         depth = self.tree_depth
+
         for i in xrange(self.trees_n):
+            start = time.time()
+            attributes = self.attributes[:]
+            ranges = self.ranges.copy()
+            start2 = time.time()
+
             rdt = RandomDT(attributes, ranges)
             rdt.generate(attributes, ranges, depth)
             self.trees.append(rdt)
+            #print "JUST BUILT ", start2 - start, time.time() - start2
 
 
 class Trainer:
@@ -301,14 +312,150 @@ class Trainer:
             ignore_attributes   are the positions to ignore of a tuple
             class_att_pos       is the position of the classifying attribute
         """
+        start0 = time.time()
         tmp = training_data.pop(0)
         while tmp != None: 
             try:
+                #start = time.time()
                 for i in rdt_forest.trees:
                     self.tree_training(i, tmp, attributes, ignore_attributes, class_att_pos)
+                #print tmp, "TRAINED IN ", time.time() - start
                 tmp = training_data.pop(0) 
             except IndexError:
                 tmp = None
+        #print "ALL TRAINED ", time.time() - start0 
+   
+
+    def tree_updating(self, tree, element, full_attributes, attributes, ranges, depth,\
+            class_attribute, class_att_pos):
+
+        #print "ATTRS,", attributes, " DEPTH ", depth 
+
+        # If is the root node, tree is the Forest of RDT
+        #if depth == self.rdtForest.tree_depth:
+        #    node = RandomDT(attributes[:], ranges.copy())
+        #    tree.trees.append(node)
+        #    tree = node
+
+        # Update the number of examples wrt classification attribute
+        if ( not tree.examples_n.__contains__(element[class_att_pos]) ):
+            tree.examples_n.__setitem__(element[class_att_pos], 1)
+        else:
+            tree.examples_n[element[class_att_pos]] += 1
+
+        # If the current tree is the leaf, the tuple is completely analyzed
+        if depth == 0:
+            return True
+        
+        # If the node is the last but one, require to generate a leaf node
+        if depth == 1:
+            next_is_leaf = 1
+        else:
+            next_is_leaf = 0
+
+        check_attr = full_attributes.index(tree.label)
+        
+        #print "RANGES ", ranges
+
+        #if ( tree.label != attributes[class_attribute]):
+        #    print "ERROR: label is different", tree.label, attributes[class_attribute]
+
+        # If the comparing attribute is a string
+        if ( tree.label[1] == "string" ):
+            
+            # Retrieve the position in the childs' list, where
+            # element[check_attr] is the value of the attribute stored in
+            # tree.label[0]
+            position = tree.threshold.index(element[check_attr])
+
+            if ( attributes.__contains__(tree.label) ):
+                    attributes.remove(tree.label)
+
+            # If is the first time that the node is reached
+            if ( tree.childs == [] ):
+                current_attributes = attributes[:]
+                current_ranges = ranges.copy()
+                
+                # Copy is needed to preserve the integrity of the
+                # parameters for the siblings and to give to descendant
+                # the modified ones
+                attributes = current_attributes[:]
+                ranges = current_ranges.copy()
+                tree.childs = [None] * len(tree.threshold)
+
+            if next_is_leaf:
+                child = RandomDT(full_attributes[class_att_pos], None)
+            else:
+                child = RandomDT(attributes, ranges)
+            
+            # Remove the value just checked, since for strings it cannot
+            # appear in the subtree by construction
+            #element.pop(check_attr)
+            tree.childs[position] = child
+            tree = tree.childs[position]
+        # If the comparing attribute is a value
+        else:
+            if float(element[check_attr]) < float(tree.threshold):
+                dir = 0
+            else:
+                dir = 1
+
+            if tree.childs == []:
+                tree.childs = [None, None]
+
+            if tree.childs[dir] == None:
+                if next_is_leaf:
+                    child = RandomDT(full_attributes[class_att_pos], None)
+                else:
+                    child = RandomDT(attributes, ranges)
+                    r_sx, r_dx = tree.range_splitting(attributes, ranges)
+
+                    if dir == 0:
+                        ranges = r_sx
+                    else:
+                        ranges = r_dx
+
+                tree.childs[dir] = child
+            tree = tree.childs[dir]
+       
+        self.tree_updating(tree, element, full_attributes, attributes, ranges, depth - 1,
+                class_attribute, class_att_pos)
+
+
+    def build_train(self, forest, full_attributes, attributes, ranges, depth, training_data,\
+            classification_attribute, classification_attribute_position):
+        
+        start0 = time.time()
+        self.rdtForest = forest
+
+        tmp = training_data.pop(0)
+        while tmp != None: 
+            try:
+                start = time.time()
+
+                #print "TUPLE ", tmp
+                for i in xrange(forest.trees_n):
+                    current_attributes = attributes[:]
+                    current_ranges = ranges.copy()
+                    if len(forest.trees) < forest.trees_n:
+                        rdt = RandomDT(current_attributes, current_ranges)
+                        self.tree_updating(rdt, tmp, full_attributes,
+                                current_attributes, current_ranges, depth,\
+                            classification_attribute, classification_attribute_position)
+                        forest.trees.append(rdt)
+                    else:
+                        self.tree_updating(forest.trees[i], tmp, full_attributes, current_attributes, current_ranges, depth,\
+                            classification_attribute, classification_attribute_position)
+
+                #break
+                #print tmp, " TRAINED IN ", time.time() - start
+                tmp = training_data.pop(0) 
+            except IndexError:
+                tmp = None
+        
+        #print forest.visit_tree(forest.trees[0],'','root')
+        print "FOREST TRAINED ======== ", time.time() - start0
+
 
 
 class Classifier:
@@ -322,6 +469,8 @@ class Classifier:
             attrs
             cl_attr     is the attribute to classify
         """
+        random.seed(time.time())
+
         self.training = tr_arff
         self.outgoing = out_arff
         self.full_attributes = attrs
@@ -330,9 +479,7 @@ class Classifier:
         self.ignore_attribute = ign_attr
         self.data = []   
         self.rdtForest = None
-
-        # DELETE
-        self.trees_n = 30 
+        self.trees_n = trees_n
 
     def retrieve_range(self):
         """
@@ -340,6 +487,7 @@ class Classifier:
             collect data into the memory
             If data presents "?" it is ignored
         """
+        import sys
         range = dict()
         temp = self.training.get_next()
         dim = len(temp)
@@ -357,7 +505,7 @@ class Classifier:
                             range[attr].append(temp[i])
                     else:
                         if (range[attr] == []):
-                            range[attr] = [0, 0]
+                            range[attr] = [sys.maxint, 0]
                         new = range[attr]
                         # So this is numeric or real
                         if range[attr][0] > float(temp[i]):
@@ -391,7 +539,7 @@ class Classifier:
                     ignore_list.append( (dim - 1) - i)
             else: 
                 class_att_pos = dim - 1 - i
-                ignore_list.append( (dim - 1) - i)
+                ignore_list.append( class_att_pos )
         ignore_list.sort()
         holy_list.reverse()
         return holy_list, ignore_list, class_att_pos
@@ -406,11 +554,21 @@ class Classifier:
             with the data
         """
         # Once the retrieve_range is called, data are in main memory.
+
+        #start = time.time()
+        #self.data.sort
+
         self.rdtForest = Forest(self.trees_n, self.attributes, self.retrieve_range())
-        self.rdtForest.populate()
+        #self.rdtForest.populate()
 
         trainer = Trainer()
-        trainer.train(self.rdtForest, self.data, self.full_attributes, self.ignore_att_pos, self.class_att_pos)
+        attributes = self.attributes[:]
+        #attributes.insert(self.class_att_pos, self.full_attributes[self.class_att_pos][0])
+        trainer.build_train(self.rdtForest, self.full_attributes, attributes, self.rdtForest.ranges.copy(),\
+                self.rdtForest.tree_depth, self.data, self.class_attribute,
+                self.class_att_pos)
+        #trainer.train(self.data)
+        #trainer.train(self.rdtForest, self.data, self.full_attributes, self.ignore_att_pos, self.class_att_pos)
         
         return self.calculate_dimension()
     
@@ -436,23 +594,32 @@ class Classifier:
         """
         sum = dict()
         total = 0
+        #start = time.time()
         for i in xrange(len(self.rdtForest.trees)):
+            #start1 = time.time()
             prediction =  self.rdtForest.trees[i].get_probability(tuple,\
                 attributes)
-            try:
-                for class_label in prediction:
-                    if (not sum.__contains__(class_label)):
-                        sum.__setitem__(class_label, 0)
-                    sum[class_label] += prediction[class_label]
-                    total += prediction[class_label]
-            except TypeError:
-                print "TUPLE", tuple, prediction
-                return None
+            #print "TUPLE TREE CLASSIFICATION TIME, ", time.time() - start1
+            
+            if prediction == None:
+       #         print "UNKNOWN"
+                return "UNKNOWN"
+            #try:
+            for class_label in prediction:
+                if (not sum.__contains__(class_label)):
+                    sum.__setitem__(class_label, 0)
+                sum[class_label] += prediction[class_label]
+                total += prediction[class_label]
+            #except TypeError:
+            #    print "TUPLE", tuple, prediction
+            #    return None
         
         for i in sum:
             sum[i] = sum[i]/len(self.rdtForest.trees)
         if sum == {}:
+        #    print "SUMM IS UNKNOWN, but PREDICTION is ", prediction
             return "UNKNOWN"
+        #print "TUPLE CLASSIFICATION TIME ", time.time() - start
         return self.loss_function(sum)
 
     def classify(self, file):
@@ -463,7 +630,13 @@ class Classifier:
             output file.
             file        the dataset to classify, in arff format
         """
-        self.rdtForest.visit_tree(self.rdtForest.trees[0],'','root')
+        #print "\nATTRIBUTES ", self.full_attributes
+        #print "==================================="
+        #print "\nRANGES ", self.rdtForest.ranges
+        #print "==================================="
+        #print self.rdtForest.visit_tree(self.rdtForest.trees[0],'','root')
+        unknown = 0
+        total = 0
         
         attributes = file.get_attributes()
         attributes.append([str(self.class_attribute)+'_label',\
@@ -478,4 +651,9 @@ class Classifier:
             self.outgoing.write_data(tmp)
             tmp = file.get_next()
 
+            #if prediction == "UNKNOWN":
+            #    unknown += 1
+            #total += 1
+
+        #print "\n\nTOTAL, ",total," of which UNKNOWN are ", unknown
         self.outgoing.store_buffer()
