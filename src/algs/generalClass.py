@@ -54,7 +54,7 @@ class Classifier:
     This class repersent the core of the classifier, contains the function
     used for both building the tree and classify data.
     """
-    def __init__(self, ds_in, ds_out, attrs, cl_att, ign_att, thr_num):
+    def __init__(self, dataset, ds_out, attrs, cl_att, ign_att, thr_num):
         """
         In the constructor there is a check for the parameter which can
         specify the number of thershold to test for the maximum
@@ -76,7 +76,6 @@ class Classifier:
         for i in range(len(self.attrs)):
             if self.attrs[i][0] == cl_att:
                 self.class_n = i
-        dataset = self.fetch_data()
         self.root = Node()
         self.root.data = dataset
         self.root.ign = ign_att
@@ -87,16 +86,6 @@ class Classifier:
             self.b_size = 7;
         else:
             self.b_size = thr_num
-
-
-    def fetch_data(self):
-        list = []
-        data = self.ds_in.get_next()
-        i = 0 
-        while data != None:
-            list.append(data)
-            data = self.ds_in.get_next()
-        return list
 
     def train(self):
         self.train_node(self.root)
