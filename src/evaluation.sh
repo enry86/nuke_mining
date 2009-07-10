@@ -62,5 +62,6 @@ fi
 plot
 
 rm "$dir/$tmp"
+rm "$outfile"
 
 exit 0
