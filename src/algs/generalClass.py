@@ -356,6 +356,5 @@ class Classifier:
         memo = memo + (64 * len(node.child))
         memo = memo + (32 * len(node.ign))
         for c in node.child:
-            tmp = self.get_memory_node(node.child[c])
-            memo = memo + tmp
+            memo = memo + self.get_memory_node(node.child[c])
         return memo  
