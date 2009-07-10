@@ -113,10 +113,11 @@ class Forest:
                         ones and the classification one
             range       is the range of the continuous dataset's attributes
         """
-        if (trees_n != 0) and (trees_n != None):
-            self.trees_n = trees_n
+        if trees_n == 0:
+            self.trees_n = self.best_forest(len(attributes) + 1)
         else:
-            self.trees_n = 30
+            self.trees_n = trees_n
+        print "Tree number = ", self.trees_n
         self.trees = []
         # Adding one to include the classifying attribute, not in attributes
         # for simplicity
@@ -127,6 +128,16 @@ class Forest:
         print "Tree depth = ", self.tree_depth
         self.attributes = attributes
         self.ranges = range
+
+    def best_forest(self, k):
+        """
+            Calculate the best number of trees to generate accordingly with
+            the attrbutes given
+            Supposition: The Dataset is not skewed
+        """
+        confidence_lower_bound =  0.435
+        base = 1 - float(1)/float(k)
+        return int(math.log(confidence_lower_bound , base))
 
     def visit_tree(self, tree, space, pos, show):
         """
