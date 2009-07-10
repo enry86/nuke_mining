@@ -133,6 +133,7 @@ class Forest:
         """
             Calculate the best number of trees to generate accordingly with
             the attrbutes given
+            Supposition: The Dataset is not skewed
         """
         confidence_lower_bound =  0.435
         base = 1 - float(1)/float(k)
