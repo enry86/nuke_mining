@@ -459,7 +459,7 @@ class Trainer:
 
 
 class Classifier:
-    def __init__(self, tr_arff, out_arff, attrs, cl_attr, ign_attr, trees_n):
+    def __init__(self, dataset, ranges, out_arff, attrs, cl_attr, ign_attr, trees_n):
         """
             Core algorithm function invoked to run the RDT algorithm on
             given parameters.
@@ -471,13 +471,14 @@ class Classifier:
         """
         random.seed(time.time())
 
-        self.training = tr_arff
+        self.data = dataset
+        self.ranges = ranges
+        #self.training = tr_arff
         self.outgoing = out_arff
         self.full_attributes = attrs
         self.attributes, self.ignore_att_pos, self.class_att_pos = self.purify(attrs, cl_attr, ign_attr)
         self.class_attribute = cl_attr
         self.ignore_attribute = ign_attr
-        self.data = []   
         self.rdtForest = None
         self.trees_n = trees_n
 
@@ -579,22 +580,12 @@ class Classifier:
             the list of attributes, train all the RDTs contained in the Forest
             with the data
         """
-        # Once the retrieve_range is called, data are in main memory.
-
-        #start = time.time()
-        #self.data.sort
-
-        self.rdtForest = Forest(self.trees_n, self.attributes, self.retrieve_range())
-        #self.rdtForest.populate()
+        self.rdtForest = Forest(self.trees_n, self.attributes, self.ranges)
 
         trainer = Trainer()
         attributes = self.attributes[:]
-        #attributes.insert(self.class_att_pos, self.full_attributes[self.class_att_pos][0])
         trainer.build_train(self.rdtForest, self.full_attributes, attributes, self.rdtForest.ranges.copy(),\
-                self.rdtForest.tree_depth, self.data, self.class_attribute,
-                self.class_att_pos)
-        #trainer.train(self.data)
-        #trainer.train(self.rdtForest, self.data, self.full_attributes, self.ignore_att_pos, self.class_att_pos)
+                self.rdtForest.tree_depth, self.data, self.class_attribute, self.class_att_pos)
         
         return self.calculate_dimension()
     
