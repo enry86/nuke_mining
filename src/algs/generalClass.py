@@ -144,7 +144,6 @@ class Classifier:
                 node.child[1] = Node()
                 node.child[1].data = mt
             elif node.value == None and not trained:
-                node.ign.append(max_att)
                 vals = self.split_dataset(node.data, max_att)
                 for v in vals:
                     node.child[v] = Node()
@@ -339,6 +338,7 @@ class Classifier:
         retrieves the total memory consumption for the tree and transform
         it into a string
         '''
+        lol = 0
         tot = self.get_memory_node(self.root) / 8
         if tot >= 1000000:
             return str(float(tot) / (1024 * 1024)) + ' MB'
@@ -353,8 +353,8 @@ class Classifier:
         visits the tree summing the memory occupied by each node
         '''
         memo = 128
-        memo = memo + (64 * len(node.child))
-        memo = memo + (32 * len(node.ign))
+        memo = memo + 32 + (64 * len(node.child))
+        memo = memo + 32 + (32 * len(node.ign))
         for c in node.child:
             memo = memo + self.get_memory_node(node.child[c])
-        return memo  
+        return memo + 32 
