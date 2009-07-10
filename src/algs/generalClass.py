@@ -96,7 +96,6 @@ class Classifier:
         This function train a single node, chosing the best attribute and
         thresold for splitting
         """
-
         self.nodes = self.nodes + 1
         trained = False
         labels = self.find_values(node.data, self.class_n)
@@ -118,6 +117,7 @@ class Classifier:
            node.label = l_max_val
         if len(labels) <= 1:
             trained = True
+            del node.data
             self.leafs = self.leafs + 1
         if not trained:
             max = 0.0
@@ -132,6 +132,7 @@ class Classifier:
                         max_tr = tr
             if max == 0.0:
                 trained = True
+                del node.data
                 self.leafs = self.leafs + 1
             else:
                 node.attr = max_att
@@ -148,26 +149,28 @@ class Classifier:
                 for v in vals:
                     node.child[v] = Node()
                     node.child[v].data = vals[v]
+            if not trained:
+                del node.data
             for c in node.child:
                 node.child[c].ign = node.ign
                 node.child[c].label = node.label
                 self.train_node(node.child[c])
-
-            
-
+    
+    
     def num_split_dataset(self, data, attr, value):
         """
         Splits the dataset with respect to a certain thresold, used for
         numeric values
         """
+        less = []
+        more = []
+        for d in data:
+            if float(d[attr]) < float(value):
+                less.append(d)
+            else:
+                more.append(d)
+        return less, more           
 
-        sorter = Sorter(attr, self.attrs[attr][1])
-        data.sort(sorter.cmp)
-        i = 0
-        while i < len(data) and data[i][attr] < value:
-            i = i + 1
-        return data[:i],data[i:]
-            
     def split_dataset(self, data, att):
         """
         Splits the dataset with respect to the value of the field att
@@ -224,11 +227,14 @@ class Classifier:
         Computes the entropy for an attribute, specified by att
         """
         entr = 0
-        sorter = Sorter(attr, self.attrs[attr][1])
-        data.sort(sorter.cmp)
-        i = 0
-        while i < len(data):
-            pr, i = self.prob(data, attr, 0, data[i][attr],i)
+        vals = {}
+        for d in data:
+            if not vals.has_key(d[attr]):
+                vals[d[attr]] = 1
+            else:
+                vals[d[attr]] = vals[d[attr]] + 1
+        for v in vals:
+            pr = vals[v]/float(len(data))
             entr = entr - (pr * math.log(pr,2))
         return entr
 
@@ -237,83 +243,52 @@ class Classifier:
         This funciton computes the conditional entropy of the label with
         respect to a particular attribute
         """
-
         entr = 0
-        sorter = Sorter(attr, self.attrs[attr][1])
-        data.sort(sorter.cmp)
-        i = 0
-        entr = 0
-        while i < len(data):
-            sce = self.spec_con_entropy(data, label, attr, data[i][attr],i)
-            pr, i = self.prob(data, attr, 0, data[i][attr],i) 
+        splitted = self.split_dataset(data, attr)
+        for s in splitted:
+            sce = self.spec_con_entropy(splitted[s], label)
+            pr = len(splitted[s]) / float(len(data))
             entr = entr + (pr * sce)
         return entr
 
-
-    def spec_con_entropy(self, data, label, attr, value, k):
+    def spec_con_entropy(self, data, label):
         """
         This function computes the specific conditional entropy of the
         label with respect to an attribute attr with a specific value 
         """
         entr = 0
         count = 0
-        sel = []
-        i = k
-        while i < len(data) and data[i][attr] == value:
-            sel.append(data[i])
-            i = i + 1
-        sorter = Sorter(label, self.attrs[label][1])
-        sel.sort(sorter.cmp)
-        n = 0
-        while n < len(sel):
-            pr, n = self.prob(sel, label, 0, sel[n][label], n)
+        splitted = self.split_dataset(data, label)
+        for s in splitted:
+            pr = len(splitted[s]) / float(len(data))
             entr = entr - (pr * math.log(pr, 2))
-        return entr 
+        return entr
 
-    
     def num_con_entropy(self, data, label, attr, thres):
         """
         This function computes the specifc conditional entropy for a
         numeric attribute, with respect to a particular attribute and a
         specified threshold
         """
-        sorter = Sorter(attr, self.attrs[attr][1])
-        data.sort(sorter.cmp)
-        pr_less, i = self.prob(data, attr, -1, thres, 0)
-        pr_more = 1 - pr_less
-        en_less = self.entropy(data[:i], label)
-        en_more = self.entropy(data[i:], label)
+        less = []
+        more = []
+        for d in data:
+            if float(d[attr]) < float(thres):
+                less.append(d)
+            else:
+                more.append(d)
+        if len(less) == 0:
+            pr_less = 0
+        else:
+            pr_less = len(less)/float(len(data))
+        if len(more) == 0:
+            pr_more = 0
+        else:
+            pr_more = len(more)/float(len(data))
+        en_less = self.entropy(less, label)
+        en_more = self.entropy(more, label)
         return (en_less * pr_less) + (en_more * pr_more)
     
-    def prob(self, data, attr, rel, value, i):
-        """
-        Utility function for computing the probability of a certain
-        condition in the dataset
-        """
-        count = 0
-        if rel == -1:
-            while i < len(data) and data[i][attr] < value:
-                count = count + 1
-                i = i + 1
-        elif rel == 0:
-            while i < len(data) and data[i][attr] == value:
-                count = count + 1
-                i = i + 1
-        elif rel == 1:
-            while i < len(data) and data[i][attr] > value:
-                count = count + 1
-                i = i + 1 
-        elif rel == 2:
-            while i < len(data) and data[i][attr] <= value:
-                count = count + 1
-                i = i + 1
-        elif rel == 3:
-            while i < len(data) and data[i][attr] >= value:
-                count = count + 1
-                i = i + 1
-        return float(count) / len(data) , i
-    
-            
     def classify(self, ds_test):
         """
         This function starts the classification task, launching the base
