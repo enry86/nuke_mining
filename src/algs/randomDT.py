@@ -493,11 +493,6 @@ class Classifier:
             self.outgoing.write_data(tmp)
             tmp = file.get_next()
 
-            if prediction == "UNKNOWN":
-                unknown += 1
-            total += 1
-
-        print "\n\nTOTAL, ",total," of which UNKNOWN are ", unknown
         self.outgoing.store_buffer()
 
     def get_memory_node(node):
