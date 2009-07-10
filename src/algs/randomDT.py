@@ -394,11 +394,52 @@ class Classifier:
             predictions     dictionary  'Class_label'='Probability'
         """
         max = predictions.keys()[0]
-        for i in predictions:
-            if predictions[i] > predictions[max]:
-                max = i
-        #print "\nPREDICTIONS: ",predictions, "\nPREDICTED", max
-        return max 
+        for class_attribute in predictions:
+            if predictions[class_attribute] > predictions[max]:
+                max = class_attribute
+        return max
+
+    def get_probabilities(self, predictions):
+        """
+            Calculate the probability of each element coming from the forest
+            predictions         list of dictionaries
+                                [['Class1':n],['Class2':m],...]
+        """
+        probabilities = []
+        # Calculate Class Probability for each tree
+        for prediction in predictions:
+            if ( prediction == "UNKNOWN"):
+                # If the prediction is UNKNOW, maybe others are values
+                predictions.remove(prediction)
+            else:
+                total = 0
+                class_probability = dict()
+                for class_attribute in prediction:
+                    total += prediction[class_attribute]
+
+                for class_attribute in prediction:
+                    elements_prob = float(prediction[class_attribute])/float(total)
+                    class_probability.__setitem__(class_attribute, elements_prob)
+
+                probabilities.append(class_probability)
+
+        # Whenever the probabilities structure is empty, the element to
+        # classify is not been recognized by any Tree
+        if probabilities == []:
+            return "UNKNOWN"
+
+        # Calculate global Class Probability, for the entire Forest
+        for prediction in probabilities:
+            for class_attribute in prediction:
+                if ( not probabilities[0].__contains__(class_attribute) ):
+                    probabilities[0].__setitem__(class_attribute, 0)
+                probabilities[0][class_attribute] += prediction[class_attribute]
+        
+        for class_attribute in probabilities[0]:
+            probabilities[0][class_attribute] =\
+                    probabilities[0][class_attribute] / self.rdtForest.trees_n 
+
+        return probabilities[0]
 
     def classify_tuple(self, tuple, attributes):
         """
@@ -406,33 +447,27 @@ class Classifier:
             probability coming from each Tree in the Forest, scanning all the
             tuple attributes, ignoring the ones not present in the tree
         """
-        sum = dict()
+        predictions = []
         total = 0
 
+        # Consulting the Forest :) (The Ent Council)
         for i in xrange(len(self.rdtForest.trees)):
-            start = time.time()
             prediction =  self.rdtForest.trees[i].get_probability(tuple,\
                 attributes)
 
-            # The tuple was not recognized by the model
+            # The tuple was not recognized by the model, in other cases the
+            # prediction is stored as the tree order number
             if prediction == None:
-                return "UNKNOWN"
+                predictions.append("UNKNOWN")
+            else:
+                predictions.append(prediction)
 
-            for class_label in prediction:
-                if (not sum.__contains__(class_label)):
-                    sum.__setitem__(class_label, 0)
-                sum[class_label] += prediction[class_label]
-                total += prediction[class_label]
-
-        for i in sum:
-            sum[i] = sum[i]/len(self.rdtForest.trees)
+        probabilities = self.get_probabilities(predictions)
         
-        print "PREDICTED IN ", time.time() - start
+        if probabilities == "UNKNOWN":
+            return probabilities
 
-        if sum == {}:
-            print "SUM IS NULL"
-            return "UNKNOWN"
-        return self.loss_function(sum)
+        return self.loss_function(probabilities)
 
     def classify(self, file):
         """
@@ -464,3 +499,26 @@ class Classifier:
 
         print "\n\nTOTAL, ",total," of which UNKNOWN are ", unknown
         self.outgoing.store_buffer()
+
+    def get_memory_node(node):
+        '''
+            visits the tree summing the memory occupied by each node
+        '''
+        memo = 128
+        memo = memo + (64 * len(node.child))
+        memo = memo + (32 * len(node.ign))
+        for c in node.child:
+            memo = memo + get_memory_node(node.child[c])
+        return (memo / 8)
+
+    def get_memory():
+        '''
+            retrieves the total memory consumption for the tree and transform it into a string
+        '''
+        tot = get_memory_node(self.root)
+        if tot >= 1000000:
+            return str(float(tot) / (1024 * 1024)) + ' MB'
+        elif tot >= 1000:
+            return str(float(tot) / 1024) + 'KB'
+        else:
+            return str(tot) + 'Bytes'
