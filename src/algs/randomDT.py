@@ -141,10 +141,10 @@ class Forest:
             if (tree.childs != []) and (tree.childs != None):
                 for i in xrange(len(tree.childs)):
                     if tree.childs[i] == None:
-                        trh = trh + ", ,"
+                        trh = trh + " ,"
                     else:
-                        trh = trh + tree.threshold[i]
-        else:
+                        trh = trh + tree.threshold[i] + ","
+        else: 
             trh = str(tree.threshold)
 
         # Print the attribute, its position, the threshold and the number of
@@ -200,8 +200,8 @@ class Trainer:
         # Update the number of examples wrt classification attribute
         if ( not tree.examples_n.__contains__(element[class_att_pos]) ):
             tree.examples_n.__setitem__(element[class_att_pos], 1)
-        else:
-            tree.examples_n[element[class_att_pos]] += 1
+        
+        tree.examples_n[element[class_att_pos]] += 1
 
         # If the current tree is the leaf, the tuple is completely analyzed
         if depth == 0:
@@ -243,15 +243,17 @@ class Trainer:
                 ranges = current_ranges.copy()
                 tree.childs = [None] * len(tree.threshold)
 
-            if next_is_leaf:
-                child = RandomDT(full_attributes[class_att_pos], None)
-            else:
-                child = RandomDT(attributes, ranges)
+            if ( tree.childs[position] == None ):
+                if next_is_leaf:
+                    child = RandomDT(full_attributes[class_att_pos], None)
+                else:
+                    child = RandomDT(attributes, ranges)
             
-            # Remove the value just checked, since for strings it cannot
-            # appear in the subtree by construction
-            #element.pop(check_attr)
-            tree.childs[position] = child
+                # Remove the value just checked, since for strings it cannot
+                # appear in the subtree by construction
+                #element.pop(check_attr)
+                tree.childs[position] = child
+
             tree = tree.childs[position]
         # If the comparing attribute is a value
         else:
