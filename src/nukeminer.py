@@ -56,7 +56,7 @@ def main():
     try:
         arff_test = arff_reader.ArffReader(opts['test_file'])
         if cross:
-            split = false
+            split = False
     except KeyError:
         if not cross:
             return 4, 'Test dataset not provided'

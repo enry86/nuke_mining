@@ -46,9 +46,11 @@ function simulation(){
 
 function plot(){
 	if [ "$dir" != "plot" ]; then
-		sed "s/plot\//$dir\//" plot_spec.plt > "$plot_conf"
+		sed "s/plot\//$dir\//" plot_spec.plt > $dir/$plot_conf
+	else
+		cp plot_spec.plt $dir/$plot_conf
 	fi
-	gnuplot "$plot_conf"
+	gnuplot $dir/$plot_conf
 }
 
 # Check presence of at least two arguments
@@ -80,10 +82,10 @@ fi
 
 plot
 
-#rm "$dir/$tmp"
-rm "$outfile"
-#rm cv_train*
-#rm cv_test*
-#rm $plot_conf
+rm $dir/$tmp
+rm $outfile
+rm cv_train*
+rm cv_test*
+rm $dir/$plot_conf
 
 exit 0
