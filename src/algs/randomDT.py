@@ -136,7 +136,7 @@ class Forest:
             Supposition: The Dataset is not skewed
         """
         if dataset_dimension < 2000:
-            confidence_lower_bound =  0.9
+            confidence_lower_bound =  0.99
         else:
             confidence_lower_bound = 0.7
         base = 1 - float(1)/float(k)
@@ -539,8 +539,8 @@ class Classifier:
         tot = self.get_memory_node(self.rdtForest.trees[self.random_tree]) / 8
         tot = tot * self.rdtForest.trees_n
         if tot >= 1000000:
-            return str(float(tot) / (1024 * 1024)) + ' MB'
+            return str(tot) + ' Bytes ' + '(' + str(float(tot) / (1024 * 1024))  + ' MB ' + ' )'
         elif tot >= 1000:
-            return str(float(tot) / 1024) + ' KB'
+            return str(tot) + ' Bytes ' + '( ' + str(float(tot) / 1024) + ' KB ' + ' )'
         else:
-            return str(tot) + ' Bytes'
+            return str(tot) + ' Bytes '

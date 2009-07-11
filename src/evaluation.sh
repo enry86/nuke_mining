@@ -4,7 +4,7 @@ plot_conf="plot_spec.plt"
 outfile="classified.arff"
 tmp="tmp"
 dir="plot"
-percentual=0
+percentual=1
 
 function ignore_par(){
 	for i in $@; do
@@ -12,15 +12,6 @@ function ignore_par(){
 			ignore="$ignore $i"
 		fi
 	done
-}
-
-function dimensionality(){
-	if [ $generalClass_mem_dim == $randomDT_mem_dim ]; then
-		generalClass="$generalClass $generalClass_mem"
-		randomDT="$randomDT $randomDT_mem"
-		memory_dim=$generalClass_mem_dim
-	fi
-
 }
 
 # The following executes the algorithms with several percentage of the dataset in cross validation
@@ -31,24 +22,21 @@ function simulation(){
 	
 	echo "Executing general classifier algorithm"
 	generalClass=`./nukeminer.py -t $1 -a $2 $3 -o $outfile -x $percentual -c generalClass`
-        generalClass_out=`echo $generalClass | awk '{print $3} {print $7} {print $11} {print $14} {print $17}'`
-	generalClass_mem=`echo $generalClass | awk '{print $20}'`
-	generalClass_mem_dim=`echo $generalClass | awk '{print $21}'`
+        generalClass=`echo $generalClass | awk '{print $3} {print $7} {print $11} {print $14} {print $17} {print $20}'`
 	
 	echo "Execution random decision tree algorithm"
 	randomDT=`./nukeminer.py -t $1 -a $2 $3 -o $outfile -x $percentual -c randomDT`
-	randomDT_out=`echo $randomDT | awk '{print $10} {print $14} {print $18} {print $21} {print $24}'`
-	randomDT_mem=`echo $randomDT | awk '{print $27}'`
-	randomDT_mem_dim=`echo $randomDT | awk '{print $28}'`
+	echo "Tree generated = `echo $randomDT | awk '{print $3}'`"
+	echo "Tree depth = `echo $randomDT | awk '{print $7}'`"
+	randomDT=`echo $randomDT | awk '{print $10} {print $14} {print $18} {print $21} {print $24} {print $27}'`
 	
-	dimensionality
-	sed "s/<dimension>/$memory_dim/" $plot_conf > "$dir/$plot_conf"
-
-	generalClass="$generalClass_out $generalClass_mem"
-	randomDT="$randomDT_out $randomDT_mem"
 	line="$percentual   $generalClass   $randomDT"
 	echo $line >> "$dir/$tmp"
-	let "percentual += 10"	       
+	if [ $percentual -eq 1 ]; then
+		let "percentual += 9"	       
+	else
+		let "percentual += 10"
+	fi
   done
 }
 
@@ -59,7 +47,7 @@ function plot(){
 	gnuplot "$plot_conf"
 }
 
-# Check presence of two arguments
+# Check presence of at least two arguments
 if [ "$#" -lt "2" ]; then
 	echo "Two arguments required"
 	echo "Syntax is: $0 <dataset> <classifying attribute> [<list ignoring attributes>]" 
@@ -86,7 +74,6 @@ fi
 plot
 
 rm "$dir/$tmp"
-#rm "$dir/$plot_conf"
 rm "$outfile"
 
 exit 0
