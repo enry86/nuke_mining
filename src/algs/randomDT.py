@@ -103,7 +103,7 @@ class Forest:
         The trees list contain the root nodes of the Forest
     """
     
-    def __init__(self, trees_n, attributes, range):
+    def __init__(self, trees_n, attributes, range, dimension):
         """
             This is the constructor of the forest of RDTs. Default dimension
             is 30 as suggested in order to obtain a good estimate with low
@@ -114,10 +114,10 @@ class Forest:
             range       is the range of the continuous dataset's attributes
         """
         if trees_n == 0:
-            self.trees_n = self.best_forest(len(attributes) + 1)
+            self.trees_n = self.best_forest(len(attributes) + 1, dimension)
         else:
             self.trees_n = trees_n
-        print "Tree number = ", self.trees_n
+        print "Trees  = ", self.trees_n
         self.trees = []
         # Adding one to include the classifying attribute, not in attributes
         # for simplicity
@@ -129,15 +129,18 @@ class Forest:
         self.attributes = attributes
         self.ranges = range
 
-    def best_forest(self, k):
+    def best_forest(self, k, dataset_dimension):
         """
             Calculate the best number of trees to generate accordingly with
             the attrbutes given
             Supposition: The Dataset is not skewed
         """
-        confidence_lower_bound =  0.435
+        if dataset_dimension < 2000:
+            confidence_lower_bound =  0.9
+        else:
+            confidence_lower_bound = 0.7
         base = 1 - float(1)/float(k)
-        return int(math.log(confidence_lower_bound , base))
+        return int(math.log((1 - confidence_lower_bound), base))
 
     def visit_tree(self, tree, space, pos, show):
         """
@@ -346,7 +349,7 @@ class Classifier:
         self.class_attribute = cl_attr
         self.ignore_attribute = ign_attr
         self.trees_n = trees_n
-        self.rdtForest = Forest(self.trees_n, attributes, ranges)
+        self.rdtForest = Forest(self.trees_n, attributes, ranges, len(self.data))
         self.outgoing = out_arff
 
     def purify (self, attrs, cl_attr, ign_attr):
@@ -538,6 +541,6 @@ class Classifier:
         if tot >= 1000000:
             return str(float(tot) / (1024 * 1024)) + ' MB'
         elif tot >= 1000:
-            return str(float(tot) / 1024) + 'KB'
+            return str(float(tot) / 1024) + ' KB'
         else:
-            return str(tot) + 'Bytes'
+            return str(tot) + ' Bytes'

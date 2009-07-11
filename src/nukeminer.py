@@ -81,14 +81,14 @@ def main():
         ign_att = []
     manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg,\
     arff_out, ign_att, cross_per, class_par)
-    tt, ct, nodes, leafs, memo = manager.perform_test()
+    tt, ct, nodes, leaves, memo = manager.perform_test()
     if cross:
         acc = manager.get_accuracy(opts['out_file'])
         print 'Accuracy =', acc 
     print 'Training time =', tt
     print 'Classification time =', ct
     print 'Nodes =', nodes
-    print 'Leafs =', leafs
+    print 'Leaves =', leaves
     print 'Memory =', memo
     return 0,None
 
