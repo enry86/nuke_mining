@@ -57,7 +57,10 @@ class ClassMgr:
         """
         data = []
         range = dict()
-        temp = training.get_next()
+        try:
+            temp = training.get_next()
+        except IndexError:
+            temp = None
         dim = len(temp)
 
         while temp != None:

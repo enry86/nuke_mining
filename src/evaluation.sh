@@ -5,6 +5,7 @@ outfile="classified.arff"
 tmp="tmp"
 dir="plot"
 percentual=1
+step=5
 
 function ignore_par(){
 	for i in $@; do
@@ -35,7 +36,7 @@ function simulation(){
 	if [ $percentual -eq 1 ]; then
 		let "percentual += 9"	       
 	else
-		let "percentual += 10"
+		let "percentual += $step"
 	fi
   done
 }

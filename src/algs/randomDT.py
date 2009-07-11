@@ -136,7 +136,7 @@ class Forest:
             Supposition: The Dataset is not skewed
         """
         if dataset_dimension < 2000:
-            confidence_lower_bound =  0.99
+            confidence_lower_bound =  0.95
         else:
             confidence_lower_bound = 0.7
         base = 1 - float(1)/float(k)
