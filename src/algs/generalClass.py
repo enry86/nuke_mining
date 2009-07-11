@@ -341,9 +341,9 @@ class Classifier:
         tot = self.get_memory_node(self.root) / 8
         s = str(tot) + ' Bytes'
         if tot >= 1000000:
-            return s + ' (' + str(float(tot) / (1024 * 1024)) + ' MB)'
+            return s + ' ( ' + str(float(tot) / (1024 * 1024)) + ' MB )'
         elif tot >= 1000:
-            return s + ' (' + str(float(tot) / 1024) + ' KB)'
+            return s + ' ( ' + str(float(tot) / 1024) + ' KB )'
         else:
             return s
 
