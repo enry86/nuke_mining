@@ -16,9 +16,9 @@ function ignore_par(){
 function simulation(){
   while [ "$percentual" -ne 100 ]; do
 	echo -e "\nTaking the $percentual% of the dataset as training elements"
-	echo "Executing general classifier algorithm"
-	generalClass=`./nukeminer.py -t $1 -a $2 $3 -o $outfile -x $percentual`
-        generalClass=`echo $generalClass | awk '{print $1} {print $2} {print $3}'`
+	#echo "Executing general classifier algorithm"
+	#generalClass=`./nukeminer.py -t $1 -a $2 $3 -o $outfile -x $percentual`
+        #generalClass=`echo $generalClass | awk '{print $1} {print $2} {print $3}'`
 	echo "Execution random decision tree algorithm"
 	randomDT=`./nukeminer.py -t $1 -a $2 $3 -o $outfile -x $percentual -c randomDT`
 	randomDT=`echo $randomDT | awk '{print $1} {print $2} {print $3}'`
