@@ -33,6 +33,7 @@ def main():
     """
     opts = read_opts()
     cross = True
+    nosplit = False
     try:
         os.stat(opts['train_file'])
         arff_in = arff_reader.ArffReader(opts['train_file'])
@@ -52,15 +53,18 @@ def main():
         cross = False
         cross_per = -1
 
-    if not cross:
-        try:
-            arff_test = arff_reader.ArffReader(opts['test_file'])
-        except KeyError:
+    try:
+        arff_test = arff_reader.ArffReader(opts['test_file'])
+        if cross:
+            split = false
+    except KeyError:
+        if not cross:
             return 4, 'Test dataset not provided'
-        except OSError:
-            return 5, 'Test dataset not found'
-    else:
-        arff_test = None
+        else:
+            arff_test = None
+            split = True
+    except OSError:
+        return 5, 'Test dataset not found'
 
     try:
         arff_out = arff_writer.ArffWriter(opts['out_file'],'class')
@@ -79,6 +83,8 @@ def main():
         ign_att = opts['ignored']
     except KeyError:
         ign_att = []
+    if cross == True and split == False:
+        cross_per = -2
     manager = class_mgr.ClassMgr(arff_in, attr, arff_test, class_alg,\
     arff_out, ign_att, cross_per, class_par)
     tt, ct, nodes, leaves, memo = manager.perform_test()
