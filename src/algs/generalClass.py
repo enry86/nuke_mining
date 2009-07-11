@@ -311,7 +311,6 @@ class Classifier:
         the nodes of the tree following the condition encountered at every
         step
         """
-
         if node.attr == -1:
             return node.label
         else:
@@ -340,12 +339,13 @@ class Classifier:
         '''
         lol = 0
         tot = self.get_memory_node(self.root) / 8
+        s = str(tot) + ' Bytes'
         if tot >= 1000000:
-            return str(float(tot) / (1024 * 1024)) + ' MB'
+            return s + ' (' + str(float(tot) / (1024 * 1024)) + ' MB)'
         elif tot >= 1000:
-            return str(float(tot) / 1024) + ' KB'
+            return s + ' (' + str(float(tot) / 1024) + ' KB)'
         else:
-            return str(tot) + ' Bytes'
+            return s
 
 
     def get_memory_node(self, node):
