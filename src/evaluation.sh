@@ -1,11 +1,11 @@
 #!/bin/bash
 
-plot_conf="plot_spec.plt"
+plot_conf="plot.plt"
 outfile="classified.arff"
 tmp="tmp"
 dir="plot"
 percentual=1
-step=5
+step=10
 
 function ignore_par(){
 	for i in $@; do
@@ -25,8 +25,11 @@ function simulation(){
 	generalClass=`./nukeminer.py -t $1 -a $2 $3 -o $outfile -x $percentual -c generalClass`
         generalClass=`echo $generalClass | awk '{print $3} {print $7} {print $11} {print $14} {print $17} {print $20}'`
 	
+	train_data="cv_train_$percentual.arff"
+	test_data="cv_test_$percentual.arff"
+
 	echo "Execution random decision tree algorithm"
-	randomDT=`./nukeminer.py -t $1 -a $2 $3 -o $outfile -x $percentual -c randomDT`
+	randomDT=`./nukeminer.py -t $train_data -d $test_data -a $2 $3 -o $outfile -x 0 -c randomDT`
 	echo "Tree generated = `echo $randomDT | awk '{print $3}'`"
 	echo "Tree depth = `echo $randomDT | awk '{print $7}'`"
 	randomDT=`echo $randomDT | awk '{print $10} {print $14} {print $18} {print $21} {print $24} {print $27}'`
@@ -43,7 +46,7 @@ function simulation(){
 
 function plot(){
 	if [ "$dir" != "plot" ]; then
-		sed "s/plot\//$dir\//" plot_spec.plt
+		sed "s/plot\//$dir\//" plot_spec.plt > "$plot_conf"
 	fi
 	gnuplot "$plot_conf"
 }
@@ -63,6 +66,9 @@ else
 	cd ..;
 fi
 
+# Modify the Text of each graphs
+
+
 # Recall simulation function passing the two input arguments
 echo "Starting evaluation of algorithms:"
 ignore_par $@
@@ -74,7 +80,10 @@ fi
 
 plot
 
-rm "$dir/$tmp"
+#rm "$dir/$tmp"
 rm "$outfile"
+#rm cv_train*
+#rm cv_test*
+#rm $plot_conf
 
 exit 0

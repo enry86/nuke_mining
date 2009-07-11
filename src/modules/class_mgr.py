@@ -61,10 +61,9 @@ class ClassMgr:
             temp = training.get_next()
         except IndexError:
             temp = None
-        dim = len(temp)
 
         while temp != None:
-            for i in xrange(dim):
+            for i in xrange(len(temp)):
                 if (attributes[i][0] not in ignore_attributes):
                     attr = attributes[i][0]
                     # If attribute is not in list, then add it
