@@ -539,7 +539,7 @@ class Classifier:
         tot = self.get_memory_node(self.rdtForest.trees[self.random_tree]) / 8
         tot = tot * self.rdtForest.trees_n
         if tot >= 1000000:
-            return str(tot) + ' Bytes ' + '(' + str(float(tot) / (1024 * 1024))  + ' MB ' + ' )'
+            return str(tot) + ' Bytes ' + '( ' + str(float(tot) / (1024 * 1024))  + ' MB ' + ' )'
         elif tot >= 1000:
             return str(tot) + ' Bytes ' + '( ' + str(float(tot) / 1024) + ' KB ' + ' )'
         else:
