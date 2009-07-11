@@ -33,7 +33,7 @@ class ClassMgr:
             class_par = 0
         else:
             class_par = int(class_par)
-        if cross_per == -1:
+        if cross_per < 0:
             self.tr_arff = tr_arff
             self.ts_arff = ts_arff
         else:
