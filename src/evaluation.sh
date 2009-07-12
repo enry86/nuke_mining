@@ -62,10 +62,13 @@ function plot(){
 	fi
 	if [ "$3" != "" ]; then
 		ignoring="ignoring attributes $3"
-		echo "$ignoring"
+		echo "IGNORE $ignoring"
 	fi
 	title="on $file classifying $2 $ignoring$thresholds$trees"
-	echo "TITLE $title"
+	echo "TITLE" $title
+	title=`echo $title | sed 's/\_/\\\_/'`
+	title=`echo $title | sed 's/\//\\\\\\//'`
+	echo "TITLE" $title
 	cat $dir/$plot_conf | sed "s/<title>/$title/" > $dir/$plot_conf	
 	gnuplot $dir/$plot_conf
 }
