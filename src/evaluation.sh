@@ -50,16 +50,28 @@ function simulation(){
 }
 
 function plot(){
-	if [ "$dir" != "plot" ]; then
-		sed "s/plot\//$dir\//" plot_spec.plt > $dir/$plot_conf
-	else
-		cp plot_spec.plt $dir/$plot_conf
+	cat plot_spec.plt | sed "s/<plot dir>\//$dir\//" > $dir/$plot_conf
+
+	file=${1%.*}
+	file=${file##*/}
+	if [ "$trees" != "" ]; then
+		trees="; ${trees#,} trees generated in randomDT"
 	fi
+	if [ "$thresholds" != "" ]; then
+		thresholds="; ${thresholds#,} thresholds to test for generalClass"
+	fi
+	if [ "$3" != "" ]; then
+		ignoring="ignoring attributes $3"
+		echo "$ignoring"
+	fi
+	title="on $file classifying $2 $ignoring$thresholds$trees"
+	echo "TITLE $title"
+	cat $dir/$plot_conf | sed "s/<title>/$title/" > $dir/$plot_conf	
 	gnuplot $dir/$plot_conf
 }
 
 # Check presence of at least two arguments
-if [ "$#" -lt "2" ]; then
+if [ $# -lt 2 ]; then
 	echo "Two arguments required"
 	echo "Syntax is: $0 <dataset> <classifying attribute> [<list ignoring attributes>]" 
 	exit 1
@@ -88,9 +100,6 @@ for i in $@;  do
 	fi
 done
 
-# Modify the Text of each graphs
-
-
 # Recall simulation function passing the two input arguments
 echo "Starting evaluation of algorithms:"
 ignore_par $@
@@ -100,7 +109,7 @@ else
 	simulation $1 $2 "-i $ignore"
 fi
 
-plot
+plot $1 $2 "$ignore"
 
 rm $dir/$tmp
 rm $outfile

@@ -307,7 +307,10 @@ class Trainer:
             This procedure is charged to train all the RDT in the Forest,
             performing the update of the all Forest for each tuple retrieved.
         """
-        tmp = training_data.pop(0)
+        try:
+            tmp = training_data.pop(0)
+        except IndexError:
+            tmp = None
         while tmp != None: 
             try:
                 for i in xrange(forest.trees_n):
@@ -396,9 +399,11 @@ class Classifier:
             This function is charged to count the number of node and leaves in
             the tree
         """
-        self.random_tree = random.randrange(self.rdtForest.trees_n)
-        nodes, leaves =  self.rdtForest.visit_tree(self.rdtForest.trees[self.random_tree],'','root',0)
-        return nodes, leaves
+        if len(self.rdtForest.trees) != 0:
+            self.random_tree = random.randrange(self.rdtForest.trees_n)
+            nodes, leaves =  self.rdtForest.visit_tree(self.rdtForest.trees[self.random_tree],'','root',0)
+            return nodes, leaves
+        return 0, 0
 
     def loss_function(self, predictions):
         """
@@ -536,6 +541,8 @@ class Classifier:
         '''
             retrieves the total memory consumption for the tree and transform it into a string
         '''
+        if len(self.rdtForest.trees) == 0:
+            return "0"
         tot = self.get_memory_node(self.rdtForest.trees[self.random_tree]) / 8
         tot = tot * self.rdtForest.trees_n
         if tot >= 1000000:
