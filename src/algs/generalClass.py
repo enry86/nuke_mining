@@ -19,7 +19,7 @@ class Node:
 
     def __init__(self):
         self.data = []
-        self.label = None
+        self.label = 'UNKNOWN'
         self.attr = -1
         self.value = None
         self.child = {}
@@ -72,21 +72,25 @@ class Classifier:
         self.attrs = attrs
         self.cl_att = cl_att
         self.ign_att = ign_att
+        self.nodes = 0
+        self.leafs = 0
         for i in range(len(self.attrs)):
             if self.attrs[i][0] == cl_att:
                 self.class_n = i
-        self.root = Node()
-        self.root.data = dataset
-        self.root.ign = ign_att
-        self.nodes = 0
-        self.leafs = 0
-        if thr_num == 0:
-            self.b_size = 7;
+        if len(dataset) != 0:    
+            self.root = Node()
+            self.root.data = dataset
+            self.root.ign = ign_att
+            if thr_num == 0:
+                self.b_size = 7;
+            else:
+                self.b_size = thr_num
         else:
-            self.b_size = thr_num
+            self.root = None
 
     def train(self):
-        self.train_node(self.root)
+        if self.root != None:
+            self.train_node(self.root)
 
     def count_nodes(self):
         return self.nodes, self.leafs
@@ -293,7 +297,6 @@ class Classifier:
         This function starts the classification task, launching the base
         case for the recursive process
         """
-
         attr = ds_test.get_attributes()
         attr.append([self.attrs[self.class_n][0]+'_label',self.attrs[self.class_n][1]])
         self.ds_out.write_headers(attr)
@@ -311,7 +314,9 @@ class Classifier:
         the nodes of the tree following the condition encountered at every
         step
         """
-        if node.attr == -1:
+        if node == None:
+            return 'UNKNOWN'
+        elif node.attr == -1:
             return node.label
         else:
             for a in range(len(attr)):
@@ -337,8 +342,10 @@ class Classifier:
         retrieves the total memory consumption for the tree and transform
         it into a string
         '''
-        lol = 0
-        tot = self.get_memory_node(self.root) / 8
+        if self.root == None:
+            tot = 0
+        else:
+            tot = self.get_memory_node(self.root) / 8
         s = str(tot) + ' Bytes'
         if tot >= 1000000:
             return s + ' ( ' + str(float(tot) / (1024 * 1024)) + ' MB )'
