@@ -18,7 +18,7 @@ set output "plot/classification.ps"
 plot "plot/tmp" using 1:4 title "general Classifier" with lines, "plot/tmp" using 1:10 title "RDT" with linespoints
 
 set title "Number of Nodes"
-set ylabel "Time (s)"
+set ylabel "Nodes"
 set output "plot/nodes.ps"
 plot "plot/tmp" using 1:5 title "general Classifier total nodes" with lines, "plot/tmp" using 1:6 title "general Classifier leaves nodes" with lines, "plot/tmp" using 1:11 title "RDT total nodes" with linespoints, "plot/tmp" using 1:12 title "RDT leaves nodes" with linespoints
 

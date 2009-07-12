@@ -1,5 +1,8 @@
 #!/bin/bash
 
+ignore=""
+trees=""
+thresholds=""
 plot_conf="plot.plt"
 outfile="classified.arff"
 tmp="tmp"
@@ -9,8 +12,10 @@ step=10
 
 function ignore_par(){
 	for i in $@; do
-		if [ $i != $1 ] && [ $i != $2 ]; then
-			ignore="$ignore $i"
+		if [ ${i:0:2} != "--" ]; then
+			if [ $i != $1 ] && [ $i != $2 ]; then
+				ignore="$ignore $i"
+			fi
 		fi
 	done
 }
@@ -22,14 +27,14 @@ function simulation(){
 	echo -e "\nTaking the $percentual% of the dataset as training elements"
 	
 	echo "Executing general classifier algorithm"
-	generalClass=`./nukeminer.py -t $1 -a $2 $3 -o $outfile -x $percentual -c generalClass`
+	generalClass=`./nukeminer.py -t $1 -a $2 $3 -o $outfile -x $percentual -c generalClass$thresholds`
         generalClass=`echo $generalClass | awk '{print $3} {print $7} {print $11} {print $14} {print $17} {print $20}'`
 	
 	train_data="cv_train_$percentual.arff"
 	test_data="cv_test_$percentual.arff"
 
 	echo "Execution random decision tree algorithm"
-	randomDT=`./nukeminer.py -t $train_data -d $test_data -a $2 $3 -o $outfile -x 0 -c randomDT`
+	randomDT=`./nukeminer.py -t $train_data -d $test_data -a $2 $3 -o $outfile -x 0 -c randomDT$trees`
 	echo "Tree generated = `echo $randomDT | awk '{print $3}'`"
 	echo "Tree depth = `echo $randomDT | awk '{print $7}'`"
 	randomDT=`echo $randomDT | awk '{print $10} {print $14} {print $18} {print $21} {print $24} {print $27}'`
@@ -68,14 +73,29 @@ else
 	cd ..;
 fi
 
+# Parse parameters in order to gather the "Number of Trees for RandomDT" and "Number of threshold for generalClassifier"
+for i in $@;  do
+	if [ ${i:0:2} == "--" ]; then
+		parameter=${i#--}
+		parameter=${parameter%=*}
+		value=${i##*=}
+		if [ $parameter == "trees" ]; then
+			trees=",$value"
+		fi
+		if [ $parameter == "thresholds" ]; then
+			thresholds=",$value"
+		fi
+	fi
+done
+
 # Modify the Text of each graphs
 
 
 # Recall simulation function passing the two input arguments
 echo "Starting evaluation of algorithms:"
 ignore_par $@
-if [ $# -eq 2 ]; then
-	simulation $1 $2 " "
+if [ "$ignore" == "" ]; then
+	simulation $1 $2
 else
 	simulation $1 $2 "-i $ignore"
 fi
