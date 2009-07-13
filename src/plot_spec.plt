@@ -1,4 +1,4 @@
-set term postscript eps enhanced color "Times-BoldItalic" 23
+set term postscript eps enhanced color "Times-BoldItalic" 22
 set xrange [0:100]
 set xlabel "Percentage of input dataset as training examples"
 set style line 1 lt 1 lw 3
