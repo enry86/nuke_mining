@@ -423,7 +423,13 @@ The Random Decision Tree algorithm is characterized by the randomic choice
 of an attribute at each node from the possible feature availables. The
 choice is bind on the type of the attribute, in particular if the feature
 can assume values in a finite set of options it cannot be chosen again in
-the subtree rooted on it. However if the feature is a 
+the subtree rooted on it. However if the feature is a continuous one, then
+a random threshold is choose to split the decision and it can be chosen
+again several times in the same subtree accordingly with the ancestor's
+decision.
+
+\subsubsection{Tree Depth}
+\subsubsection{Trees Number}
 
 \bibliographystyle{abbrv}
 \bibliography{report}

@@ -78,11 +78,11 @@ if [ $# -lt 2 ]; then
 fi
 
 # Create plot's directory 
-cd $dir
-if [ $? -ne 0 ]; then
-	mkdir $dir;
-else
-	cd ..;
+echo "Preparazione directory $dir"
+if [ -d $dir ]; then
+	rm $dir/*
+else 
+	mkdir $dir
 fi
 
 # Parse parameters in order to gather the "Number of Trees for RandomDT" and "Number of threshold for generalClassifier"
