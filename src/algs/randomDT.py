@@ -141,7 +141,9 @@ class Forest:
 
     def visit_tree(self, tree, space, pos, show):
         """
-            Only for testing propouse. It represents the tree
+            It counts the number of nodes in the tree and can print all of
+            them in a format like a vertical tree (used for testing with
+            low number of attribtes.
         """
         # If the node is None, it doesn't exist
         if tree == None:
@@ -180,27 +182,11 @@ class Forest:
 
 class Trainer:
     """
-        self.data are data
-        self.range is a list of form [min, max] used to generate the random
-        threshold of trees
+        Is the class that perform the tree building and the raining.
     """
 
     def __init__(self):
         pass
-
-    def feature_expansion(self, example):
-        """
-            Accordingly with the solution proposed by Wei Fan et al. the
-            number of features are weak. So with this function we increment
-            the number from 4 to 12: each data value is supported by two
-            non-linear value function of it.
-        """
-        expanded_example = []
-        for i in example:
-            expansion_1 = i * i
-            expansion_2 = math.log(i + 1)
-            expanded_example.append([i, expansion_1, expansion_2])
-        return expanded_example
 
     def tree_updating(self, tree, element, full_attributes, attributes, ranges, depth,\
             class_attribute, class_att_pos):

@@ -500,8 +500,6 @@ the chosen attribute less than the selected threshold and the other
 containing the rest 
 
 \subsection{Random Decision Tree}
-The 
-
 In the first implementation of the algorithm, that was rigrous to the
 pseudocode presented in \cite{fan:rdt} that is build the tree before the
 training, testing with a dataset having different discrete feature, such
@@ -530,6 +528,7 @@ the attribute can assume, the trained tree may be less accurate.
 Accodingly with the confidence in \ref{formula:confidence} the inverse
 formula
 \begin{equation}
+\label{formula:N_generate}
 N = \log_{1-\frac{1}{k}}({1 - \emph{confidence}})
 \end{equation}
 allows to calculate the numbers of tree to generate in a dynamic way. In
@@ -540,6 +539,27 @@ low number of tree generated.} the \emph{confidence} is set to 95\%,
 whereas if it is greater is set to 70\%. The tests conducted in all the
 datasets show the efficience of the method in analyzed that improve the
 timing without any accuracy loss.
+
+The algorithm is contained in the ``randomDT.py'' Python file and consists
+of four classes. The main one is ``Classifier'' that allows to interface
+the support class ``class_mgr.py'' through the methods ``train()'',
+``classify()'' and ``get_memory()''. Moreover the class is charged to
+remove the attributes to ignore and to perform the classification.
+
+The ``Forest'' class is a virtual representation of the set of trees
+generated. In particular the function ``best_forest()'' configure the
+number of trees to generate accordingly with \ref{formula:N_generate}.
+
+The ``RandomDT'' class represent the Random Decision Tree, in particular
+in the initialization, if is requested a simple node, then a random
+element from the list of attributes given as parameter is chosen and the
+ranges, the second parameter, is on purpose modified: if the attribute is
+continuous then a random threshold is chosend accordingly with
+ranges and two sons are generated, whereas in the case of a discrete
+feature, ``threshold'' will contain the possible values it can
+assume, comining from ranges from which will be deleted to avoid a choice
+in the subtree, and will be used to indicize the ``childs'' field.
+
 
 \section{Experimental Evaluation}
 The tests have been conducted on two different machines, but same
@@ -597,13 +617,23 @@ and ignoring the attributes: fnlwgt and education-num}
 \end{figure*}
 
 \subsection{Improvements}
-There are some improvements that the algorithm RDT may be target of, in
-particular the Memory usage. At the moment each value that a discrete
-feature may assume is stored in the node growing its dimension. A
-possible easy solution is to index the child as the order of possible
-valueas are passed to the software. The advantage in memory consumption is
-considerable.
+There are some improvements that the framework can be submitted.
+The Decision Tree algorithm may be enriched with the possibility to
+calculate also the Gini Index and can be left to user the choice to use 
+one or the other. 
+For the RDT algorithm may be improved in particular the Memory usage. At
+the moment each value that a discrete feature may assume is stored in the
+node growing its dimension. A possible easy solution is to index the child
+as the order of possible valueas are passed to the software. The advantage
+in memory consumption is considerable.
 
+Another feature to enrich the framework is the option to save the model
+and reload in order to facilitate the study with a bigger structure. In
+the case the Python module ``Pickle'' allows to serialize and de-serialize
+Python object structures converting it in a Byte stream.
+
+The script may be optimized to perform the management of an arbitrary
+number of algorithm and more parameter should be acquired through it.
 \bibliographystyle{abbrv}
 \bibliography{report}
 \end{document}
