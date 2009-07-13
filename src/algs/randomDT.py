@@ -121,10 +121,7 @@ class Forest:
         self.trees = []
         # Adding one to include the classifying attribute, not in attributes
         # for simplicity
-        if ( len(attributes) > 10 ):
-            self.tree_depth = (len(attributes) + 1 ) / 2
-        else:
-            self.tree_depth = len(attributes) + 1 
+        self.tree_depth = (len(attributes) + 1) / 2
         print "Tree depth = ", self.tree_depth
         self.attributes = attributes
         self.ranges = range
@@ -409,7 +406,7 @@ class Classifier:
         """
             This is the function that is charged to do the prediction once the
             probabilities of classes are given.
-            It returns the best one. At moment i 0-1 function
+            It returns the best one. At moment is 0-1 function
             predictions     dictionary  'Class_label'='Probability'
         """
         max = predictions.keys()[0]

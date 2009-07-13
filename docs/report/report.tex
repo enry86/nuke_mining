@@ -76,13 +76,51 @@ in which presents this measure and the way in which it can be computed.
 
 The second algorithm we choose for the comparison is the Random Decision
 Tree presented by Wei Fan in \cite{fan:rdt} which presents the idea to
-build a Decision Tree chosing randomly at each node an attribute. If the
-attribute has a limited number of possible values, then a proportional
-number of childs is generated and it cannot be chosen again in the
-same tree. The continuous features extracted as thresholds, instead, can be
-chosen multiple times but accordingly with the previouses ones.
-To enhance the accuracy multiple trees are trained and then the prevision
-is averaged among them.
+build a Decision Tree chosing, at each node, an attribute randomly. The
+choice is bind on the type of the attribute, in particular if the feature
+can assume values in a finite set of options it cannot be chosen again in
+the subtree rooted on it. However if the feature is a continuous one, then
+a random threshold is choose to split the decision\footnote{The left child
+stands for elements that have the value for the attribute less than the
+threshold at the node and the right one for the ones which have value
+greater or equal than the threshold at the node.} and it can be chosen
+again several times in the same subtree accordingly with the ancestor's
+decision.
+
+To enhance the accuracy of the method, since the random choice may
+leads to different results, multiple trees are trained in order to
+approximate the true mean. Considering \emph{k} as the number of features
+of the dataset and \emph{N} as the number of trees, then the confidence
+probability to have is:
+$$ 1 - ( 1 - \frac{1}{k})^N $$
+
+Considering the \emph{k} features of the dataset, and the \emph{i}
+classifying attributes, the most diversity among trees is with depth of $$
+\frac{k}{2} $$ since is the maximum value of the combination $$
+{{i}\choose{k}} $$
+
+Once the structure is ready the training may take place, in
+particular each tuple of the dataset train all the trees generated in
+order to read only one time the data. Each node counts how many
+numbers of examples go through it.
+
+At the end of the training the leaves contains the probability distribution
+of each class, in particular for the tree \emph{i}, considering
+\emph{n[y]} the number of instances of class \emph{y}, is:
+\begin{center}
+\begin{math}
+	P_i(\emph{y}|x) = \frac{n[\emph{y}]}{\sum_\emph{y} n[\emph{y}]}
+\end{math}
+\end{center}
+
+The classification phase retrieves the probability distribution from each
+tree and average on the number of trees generated in the model:
+\begin{center}
+\begin{math}
+	P(\emph{y}|x) = \frac{1}{N} \sum_{i=1}^N P_i(\emph{y}|x)
+\end{math}
+\end{center}
+
 
 \section{PROBLEM DEFINITION}
 The main aim of this work is to produce a comparison between two different
@@ -419,35 +457,21 @@ the chosen attribute less than the selected threshold and the other
 containing the rest 
 
 \subsection{Random Decision Tree}
-The Random Decision Tree algorithm is characterized by the randomic choice
-of an attribute at each node from the possible feature availables. The
-choice is bind on the type of the attribute, in particular if the feature
-can assume values in a finite set of options it cannot be chosen again in
-the subtree rooted on it. However if the feature is a continuous one, then
-a random threshold is choose to split the decision and it can be chosen
-again several times in the same subtree accordingly with the ancestor's
-decision.
+In the first implementation of the algorithm, that was rigrous to the
+pseudocode presented in \cite{fan:rdt} that is build the tree before the
+training, testing with a dataset having different discrete feature, such
+``Adult'', the tree generated was very big and the time to construct it was
+very expensive; in particular, building a tree having depth equals to the
+number of attributes, instead of the half, the Python interpreter
+aborted its execution due to memory problems.
+The tree presented by the pseudocode is the one with all possible values
+that features may assume but it can be rather empty once it has been
+trained. Some tests on different datasets reveal that is not useful to
+produce a bigger tree if data can not fit it.
 
-In the first time the implementation was rigrous to the pseudocode
-presented in \cite{fan:rdt} building the tree before the training, that
-is generate a child for each value a discrete feature may assume and two
-childs\footnote{The left one for elements that have the value for the
-attribute less than the threshold at the node and the right one for the
-ones which have value greater or equal than the threshold at the node.}
-for the continuous attributes and finally train the model given with data.
-Testing with a dataset having different discrete feature, such ``Adult'',
-the tree generated was very big and the time to construct it was very
-expensive; in particular, building a tree having depth equals to the
-number of attributes, the Python interpreter aborted its execution due to
-memory problems.
-The tree that the pseudocode produce is the one with all possible values
-``combinations'' but it can be pretty empty once it has been trained. Some
-tests on different datasets reveal that is not useful to produce a bigger
-tree if data can not fit it.
-The 
-
-\subsubsection{Tree Depth}
-\subsubsection{Trees Number}
+In order to solve the problem the tree's building phase has been merged
+with the training phase and nodes are generated only if there is an element
+that can through them. This lead to a compact tree
 
 \bibliographystyle{abbrv}
 \bibliography{report}
