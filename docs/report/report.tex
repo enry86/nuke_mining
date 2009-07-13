@@ -481,7 +481,7 @@ base for a comparison with another algorithm.
 
 The measure chosen for selecting the attribute on which split the dataset
 is the information gain.
-The computing of this measure on categorical values is quite a simple
+The computation of this measure on categorical values is quite a simple
 operation. When considering numerical values the situation changes, in
 fact considering the specific conditional entropy for every possible value
 assumed by a numerical attribute is a waste of resource and won't give
@@ -492,6 +492,27 @@ to compute the information gain of a threshold on which split the dataset.
 In this way a node is split in two children, one containing the data with
 the chosen attribute less than the selected threshold and the other
 containing the rest 
+
+To perform the computation of the information gain, the algorithms splits
+recursively the dataset owned by the node. 
+This operation is performed until is possible to compute the specific
+conditional entropy for the label with respect to each different attribute
+and its values.
+
+For the numeric values a similar behaviour is adopted, but, instead of
+splitting the dataset with respect to each different value of the
+attribute analyzed, the split is performed using a threshold.
+
+Another important operation to be performed before training a node is to
+select a set of candidate threshold for the numeric attributes, on which
+compute the information gain, and eventually split the node.
+In order to perform this task the algorithm sorts the values of the
+selected attributes and bucketizes it, following a equi-depth approach.
+
+Besides the cost in time for sorting the list of values, which is $n log
+n$ in the worst case (using the built in python implementation), this
+approach offers a more sharp way for threshold selection, than through a
+sample of the dataset.
 
 \subsection{Random Decision Tree}
 In the first implementation of the algorithm, that was rigrous to the
