@@ -50,8 +50,6 @@ function simulation(){
 }
 
 function plot(){
-	cat plot_spec.plt | sed "s/<plot dir>\//$dir\//" > $dir/$plot_conf
-
 	file=${1%.*}
 	file=${file##*/}
 	if [ "$trees" != "" ]; then
@@ -66,7 +64,7 @@ function plot(){
 	title="on $file classifying $2 $ignoring$thresholds$trees"
 	title=`echo $title | sed 's/\_/\\\_/'`
 	title=`echo $title | sed 's/\//\\\\\\//'`
-	cat $dir/$plot_conf | sed "s/<title>/$title/" > $dir/$plot_conf	
+	cat plot_spec.plt |  sed "s/<plot dir>\//$dir\//" | sed "s/<title>/$title/" > $dir/$plot_conf
 	gnuplot $dir/$plot_conf
 }
 

@@ -428,6 +428,24 @@ a random threshold is choose to split the decision and it can be chosen
 again several times in the same subtree accordingly with the ancestor's
 decision.
 
+In the first time the implementation was rigrous to the pseudocode
+presented in \cite{fan:rdt} building the tree before the training, that
+is generate a child for each value a discrete feature may assume and two
+childs\footnote{The left one for elements that have the value for the
+attribute less than the threshold at the node and the right one for the
+ones which have value greater or equal than the threshold at the node.}
+for the continuous attributes and finally train the model given with data.
+Testing with a dataset having different discrete feature, such ``Adult'',
+the tree generated was very big and the time to construct it was very
+expensive; in particular, building a tree having depth equals to the
+number of attributes, the Python interpreter aborted its execution due to
+memory problems.
+The tree that the pseudocode produce is the one with all possible values
+``combinations'' but it can be pretty empty once it has been trained. Some
+tests on different datasets reveal that is not useful to produce a bigger
+tree if data can not fit it.
+The 
+
 \subsubsection{Tree Depth}
 \subsubsection{Trees Number}
 
