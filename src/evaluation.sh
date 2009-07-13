@@ -59,7 +59,7 @@ function plot(){
 		thresholds="; ${thresholds#,} thresholds to test for generalClass"
 	fi
 	if [ "$3" != "" ]; then
-		ignoring="ignoring attributes $3"
+		ignoring="ignoring $3"
 	fi
 	title="on $file classifying $2 $ignoring$thresholds$trees"
 	title=`echo $title | sed 's/\_/\\\_/'`

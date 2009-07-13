@@ -328,7 +328,7 @@ class Trainer:
                 tmp = training_data.pop(0) 
             except IndexError:
                 tmp = None
-        
+
 
 class Classifier:
     def __init__(self, dataset, ranges, out_arff, attrs, cl_attr, ign_attr, trees_n):
@@ -493,9 +493,6 @@ class Classifier:
             output file.
             file        the dataset to classify, in arff format
         """
-        unknown = 0
-        total = 0
-        
         attributes = file.get_attributes()
         attributes.append([str(self.class_attribute)+'_label',\
                 self.full_attributes[self.class_att_pos][1]])
@@ -504,7 +501,7 @@ class Classifier:
         tmp = file.get_next()
         while tmp != None:
             prediction = self.classify_tuple(tmp, attributes)
-            
+
             tmp.append(prediction)
             self.outgoing.write_data(tmp)
             tmp = file.get_next()

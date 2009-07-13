@@ -133,6 +133,7 @@ probability to have is:
 Considering the \emph{k} features of the dataset, and the \emph{i}
 classifying attributes, the most diversity among trees is with depth of 
 \begin{equation}
+\ref{fig:depth}
 \frac{k}{2} 
 \end{equation}
 since is the maximum value of the combination
@@ -458,7 +459,12 @@ results of the two different algorithms.
 
 Once the script ends its cycle, the local directory ``plot'' will contain
 five graphs: accuracy.ps, training.ps, classification.ps, nodes.ps and
-memory.ps
+memory.ps. The syntax of the tool is:
+\begin{verbatim}
+./evaluation.sh <dataset> <classification attribute>\
+     [<ignore attribute> <ignore attribute>]\
+     [--trees=<number>] [--thresholds=<number>]
+\end{verbatim}
 
 An example of use is the following:
 \begin{verbatim}
@@ -494,6 +500,8 @@ the chosen attribute less than the selected threshold and the other
 containing the rest 
 
 \subsection{Random Decision Tree}
+The 
+
 In the first implementation of the algorithm, that was rigrous to the
 pseudocode presented in \cite{fan:rdt} that is build the tree before the
 training, testing with a dataset having different discrete feature, such
@@ -534,13 +542,67 @@ datasets show the efficience of the method in analyzed that improve the
 timing without any accuracy loss.
 
 \section{Experimental Evaluation}
+The tests have been conducted on two different machines, but same
+architecture, and no relevant differences were observed. The datasets
+considered are not equally populated by the two kind of attributes
+foreseen and they may be not real ``representative'' of the distribution.
 
-\begin{figure}
+In order to compare the two algorithms the ``Adult'' dataset was taken as
+primary check since it contains different kind of attributes and it is
+quite big. In particular the dataset present fifteen attributes, nine of
+them of string type, and classify over a string attribute, ``gain'',
+ignoring two numeric features, ``fnlwgt'' and ``education-num''. The
+command executed is:
+\begin{verbatim}
+./evaluation.sh adult.arff gain fnlwgt education-num
+\end{verbatim}
+
+In figure \ref{fig:standard} are shown all the ouput graphs obtained. 
+For a better comparison with Decision Tree the number of nodes for RDT
+algorithm is referred to a single tree, randomly chosen among the others.
+The \ref{fig:depth} assure a good reduction in terms of nodes and the
+choice has a direct results on the graph about the number of nodes
+generated.
+
+The memory usage for the RDT is very high due to implementation that was
+focused on the comprehension rather the efficiency in order to simplify
+the implementation. The huge employment comes from the storing of the
+values of the discrete features in the nodes to index the childs. Since
+there are several trees this facilitation exploits with the number. In the
+test there was built sixteen trees, so the space allocation for a single
+tree, for the maximum case, is:
+$$ \frac{3500000}{16} Byte = 218750 Byte$$
+And so the single tree is proportional to the one built by the Decision
+Tree.
+
+The number of trees has impact also in the training time and the
+classification time, of course. In particular for train a tuple the RDT
+algorithm spend on average 6.5\emph{ns} whereas to classify a tuple it
+spends on average 5.6\emph{ns}. It is rather efficient, but considering
+the whole forest of tree the time acquire a significant value.
+
+About the accuracy the RDT algorithm shows a stable accuracy, little
+better than the Decision algorithm.
+
+\begin{figure*}
+\label{fig:standard}
 \centering
-\epsfig{file=3.ps,scale=0.70}
-\caption{A sample black and white graphic (.eps format)
-that needs to span two columns of text.}
-\end{figure}
+\epsfig{file=training.ps,scale=0.60}
+\epsfig{file=classification.ps,scale=0.60}
+\epsfig{file=nodes.ps,scale=0.60}
+\epsfig{file=memory.ps,scale=0.60}
+\epsfig{file=accuracy.ps,scale=0.60}
+\caption{Running the framework on the Adult dataset classifying over gain
+and ignoring the attributes: fnlwgt and education-num}
+\end{figure*}
+
+\subsection{Improvements}
+There are some improvements that the algorithm RDT may be target of, in
+particular the Memory usage. At the moment each value that a discrete
+feature may assume is stored in the node growing its dimension. A
+possible easy solution is to index the child as the order of possible
+valueas are passed to the software. The advantage in memory consumption is
+considerable.
 
 \bibliographystyle{abbrv}
 \bibliography{report}
