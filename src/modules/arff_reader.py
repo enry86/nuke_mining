@@ -32,6 +32,7 @@ class ArffReader:
             while line.count('@DATA') == 0 and line != '':
                 if line.count('@ATTRIBUTE') != 0 and line[0] != '%':
                     attr = line.split()[1:]
+                    attr[1] = attr[1].lower()
                     res.append(attr)
                 line = file.readline()
             self.start_data = file.tell()
