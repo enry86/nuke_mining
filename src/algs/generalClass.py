@@ -77,6 +77,8 @@ class Classifier:
         for i in range(len(self.attrs)):
             if self.attrs[i][0] == cl_att:
                 self.class_n = i
+            if self.attrs[i][1] == 'real':
+                self.attrs[i][1] = 'numeric'
         if len(dataset) != 0:    
             self.root = Node()
             self.root.data = dataset
