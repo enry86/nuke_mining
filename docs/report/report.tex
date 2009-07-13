@@ -92,12 +92,20 @@ leads to different results, multiple trees are trained in order to
 approximate the true mean. Considering \emph{k} as the number of features
 of the dataset and \emph{N} as the number of trees, then the confidence
 probability to have is:
-$$ 1 - ( 1 - \frac{1}{k})^N $$
+\begin{equation}
+\label{formula:confidence}
+1 - ( 1 - \frac{1}{k})^N
+\end{equation}
 
 Considering the \emph{k} features of the dataset, and the \emph{i}
-classifying attributes, the most diversity among trees is with depth of $$
-\frac{k}{2} $$ since is the maximum value of the combination $$
-{{i}\choose{k}} $$
+classifying attributes, the most diversity among trees is with depth of 
+\begin{equation}
+\frac{k}{2} 
+\end{equation}
+since is the maximum value of the combination
+\begin{equation}
+ {{i}\choose{k}}
+\end{equation}
 
 Once the structure is ready the training may take place, in
 particular each tuple of the dataset train all the trees generated in
@@ -107,19 +115,15 @@ numbers of examples go through it.
 At the end of the training the leaves contains the probability distribution
 of each class, in particular for the tree \emph{i}, considering
 \emph{n[y]} the number of instances of class \emph{y}, is:
-\begin{center}
-\begin{math}
+\begin{equation}
 	P_i(\emph{y}|x) = \frac{n[\emph{y}]}{\sum_\emph{y} n[\emph{y}]}
-\end{math}
-\end{center}
+\end{equation}
 
 The classification phase retrieves the probability distribution from each
 tree and average on the number of trees generated in the model:
-\begin{center}
-\begin{math}
+\begin{equation}
 	P(\emph{y}|x) = \frac{1}{N} \sum_{i=1}^N P_i(\emph{y}|x)
-\end{math}
-\end{center}
+\end{equation}
 
 
 \section{PROBLEM DEFINITION}
@@ -463,15 +467,23 @@ training, testing with a dataset having different discrete feature, such
 ``Adult'', the tree generated was very big and the time to construct it was
 very expensive; in particular, building a tree having depth equals to the
 number of attributes, instead of the half, the Python interpreter
-aborted its execution due to memory problems.
+aborted its execution due to memory problems.\footnote{In the test we
+conducted on a training dataset of 26065 elements, the number of node for
+the tree with depth 13 was over one million.}
 The tree presented by the pseudocode is the one with all possible values
 that features may assume but it can be rather empty once it has been
-trained. Some tests on different datasets reveal that is not useful to
-produce a bigger tree if data can not fit it.
+trained in the case there are a lot of discrete features . Some tests
+on different datasets reveal that is not useful to produce a bigger tree if
+data can not fit it.
 
 In order to solve the problem the tree's building phase has been merged
 with the training phase and nodes are generated only if there is an element
-that can through them. This lead to a compact tree
+that can go through them. This lead to a compact tree where
+each node is crossed by at least one element.\footnote{With the same
+conditions as before, now the algorithm performs the train generating a
+tree with at least 4060 nodes.}
+
+Accodingly with the confidence \ref{formula:confidence}
 
 \bibliographystyle{abbrv}
 \bibliography{report}
