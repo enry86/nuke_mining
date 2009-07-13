@@ -501,7 +501,8 @@ training, testing with a dataset having different discrete feature, such
 very expensive; in particular, building a tree having depth equals to the
 number of attributes, instead of the half, the Python interpreter
 aborted its execution due to memory problems.\footnote{In the test we
-conducted on a training dataset of 26065 elements, the number of node for
+conducted on a training dataset with 13 attributes, nine of them with
+more than six possible values, and 26065 elements, the number of node for
 the tree with depth 13 was over one million.}
 The tree presented by the pseudocode is the one with all possible values
 that features may assume but it can be rather empty once it has been
@@ -520,6 +521,20 @@ If the training dataset is not expressive on the possible values
 the attribute can assume, the trained tree may be less accurate.
 Accodingly with the confidence in \ref{formula:confidence} the inverse
 formula
+\begin{equation}
+N = \log_{1-\frac{1}{k}}({1 - \emph{confidence}})
+\end{equation}
+allows to calculate the numbers of tree to generate in a dynamic way. In
+ particular if the number of examples to train the model is less than
+2000\footnote{Experimental tests coducted by Wei Fan show that this
+examples history is generally enough to have a good confidence even with a
+low number of tree generated.} the \emph{confidence} is set to 95\%,
+whereas if it is greater is set to 70\%. The tests conducted in all the
+datasets show the efficience of the method in analyzed that improve the
+timing without any accuracy loss.
+
+\section{Experimental Evaluation}
+
 
 \bibliographystyle{abbrv}
 \bibliography{report}
