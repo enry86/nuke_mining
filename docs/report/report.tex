@@ -74,6 +74,39 @@ presents some ways to optimize and prune the obtained tree.
 For the information gain, the same author published a set of slides
 in which presents this measure and the way in which it can be computed.
 
+In this work the formal definition of information gain is equation
+\ref{infogain}.
+\begin{equation}
+IG(Y|X) = H(Y) - H(Y|X)
+\label{infogain}
+\end{equation}
+Where Y represent the class and X the attribute tested and the function H
+is the entropy.
+This function gives a measure of the dispersion of the values in the
+dataset.
+
+In particular entropy if an attribute is defined as in equation
+\ref{entr}.
+\begin{equation}
+H(X) = -\sum_{j}^{m} p_j log_2(p_j)
+\label{entr}
+\end{equation}
+Where $p_j$ is defined as $P(X = V_j)$, the probability that X takes value
+$V_j$, and $m$ is the number of different values that $X$ admits.
+
+In formula \ref{infogain} appears even the function $H(Y|X)$, defined as
+conditional entropy in formula \ref{condentr}.
+\begin{equation}
+H(Y|X) = \sum_{j} p_j H(X| Y  = V_j)
+\label{condentr}
+\end{equation}
+This value gives the average of the entropy of the attribute $X$ over the
+portions of the dataset where $Y$ takes different values.
+In fact is the average weighted over the probability of the value $V_j$ of
+the specific conditional entropy $H(X| Y  = V_j)$, defined as the entropy
+of the attribute $X$ computed among the datapoints where the attribute $Y$
+has value $V_j$. 
+
 The second algorithm we choose for the comparison is the Random Decision
 Tree presented by Wei Fan in \cite{fan:rdt} which presents the idea to
 build a Decision Tree chosing, at each node, an attribute randomly. The
