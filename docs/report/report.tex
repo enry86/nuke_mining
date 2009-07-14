@@ -629,13 +629,13 @@ The \ref{fig:depth} assure a good reduction in terms of nodes and the
 choice has a direct results on the graph about the number of nodes
 generated.
 
-The memory usage for the RDT is very high due to implementation that was
-focused on the comprehension rather the efficiency in order to simplify
-the readability. The huge employment comes from the storing of the
-values of the discrete features in the nodes to index the children. Since
-there are several trees this facilitation exploits with the number. In the
-test there was built sixteen trees, so the space allocation for a single
-tree, for the maximum case, is:
+Considering the former dataset, the memory usage for the RDT is very high
+due to implementation that was focused on the comprehension rather the
+efficiency in order to simplify the readability. The huge employment comes
+from the storing of the values of the discrete features in the nodes to
+index the children. Since there are several trees this facilitation
+exploits with the number. In the test there was built sixteen trees, so the
+space allocation for a single tree, for the maximum case, is:
 $$ \frac{3500000}{16} Byte = 218750 Byte$$
 And so the single tree is proportional to the one built by the Decision
 Tree. The non-linear trend of the graph is due to the different tree
@@ -665,7 +665,32 @@ In figure \ref{fig:adult-50} are shown the results of the evaluation on
 the same datasets but generating fifty random decision trees. The
 \ref{formula:confidence} assures that the confidence is over 98\%, whereas
 with the sixteeb trees generated  by the algorithm is over 72\%. However
-the accuracy is 
+the accuracy is the same thank to the training data that are exhaustive
+for the dataset, but the training time is three time more than the first
+experiment due to the huge number of trees (analogous is the
+classification time, not shown).
+
+Similiar analysis in figure \ref{fig:adult-10} where a test with ten
+random decision trees was conducted on the same dataset, with respect to
+the first experiment the gain in time is about 30\%, but accuracy is less
+stable; in fact with this number of trees the confidence in
+\ref{formula:confidence} results to be 55\%.
+
+Another experiment was to classify on ``occupation'' and the figure
+\ref{fig:adult-occupation} shows the differences between the two
+algorithms. The accuracy is quite low for both of them, but the Random
+Decision Tree has a 10\% on average a better prediction having a very
+compact tree gaining in training time. However the classification time is
+particular expensive.
+
+The second kind of tests was conducted in the completely different
+dataset, the ``Xenon'', since the major of its attributes is numeric.
+In figure \ref{fig:training_st_standard} the Random Decision Tree reach
+the best results with respect the previous experiments, even in the
+classification time that is influenced by the very small tree. In this
+case the forest owns six trees with depth of tree. The accuracy is stable,
+but the given dataset contains a lot of examples of one kind, resulting an
+advantage for the method.
 
 \begin{figure*}
 \label{fig:adult_standard}
@@ -687,6 +712,15 @@ and ignoring the attributes: fnlwgt and education-num.}
 \epsfig{file=accuracy_adult-50.ps,scale=0.60}
 \caption{Running the framework on the Adult dataset classifying over gain
 and ignoring the attributes: fnlwgt and education-num with 50 trees.}
+\end{figure}
+
+\begin{figure}
+\label{fig:adult-10}
+\centering
+\epsfig{file=training_adult-10.ps,scale=0.60}
+\epsfig{file=accuracy_adult-10.ps,scale=0.60}
+\caption{Running the framework on the Adult dataset classifying over gain
+and ignoring the attributes: fnlwgt and education-num with 10 trees.}
 \end{figure}
 
 \begin{figure}
