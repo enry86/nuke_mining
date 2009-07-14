@@ -112,7 +112,8 @@ Tree presented by Wei Fan in \cite{fan:rdt} which presents the idea to
 build a Decision Tree choosing, at each node, an attribute randomly. The
 choice is bind on the type of the attribute, in particular if the feature
 can assume values in a finite set of options it cannot be chosen again in
-the subtree rooted on it. However if the feature is a continuous one, then
+the subtree rooted on it\footnote{For each value the attribute may assume
+a child is generated}. However if the feature is a continuous one, then
 a random threshold is choose to split the decision\footnote{The left child
 stands for elements that have the value for the attribute less than the
 threshold at the node and the right one for the ones which have value
@@ -581,13 +582,13 @@ in the initialization, if is requested a simple node, then a random
 element from the list of attributes given as parameter is chosen and the
 ranges, the second parameter, is on purpose modified: if the attribute is
 continuous then a random threshold is chosen accordingly with
-ranges and two sons are generated, whereas in the case of a discrete
+ranges and stored in ``threshold'', whereas in the case of a discrete
 feature, ``threshold'' will contain the possible values it can
-assume, coming from ranges from which will be deleted to avoid a choice
-in the subtree, and will be used to indexed the ``children'' field.
-The class offers also the method to retrieve the probability distribution
-as in \ref{formula:probability_tree} from the tree given the tuple to
-classify.
+assume, coming from ranges from which will be deleted to avoid any fu
+rther choices in the subtree, and will be used to index the ``childs''
+field. The class offers also the method to retrieve the probability
+distribution as in \ref{formula:probability_tree} from the tree given the
+tuple to classify.
 
 The ``Trainer'' class aims to build and train the entire forest of RDTs.
 In particular the procedure ``build\_train()'' manages the retrieving and
