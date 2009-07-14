@@ -524,7 +524,7 @@ approach offers a more sharp way for threshold selection, than through a
 sample of the dataset.
 
 \subsection{Random Decision Tree}
-In the first implementation of the algorithm, that was rigrous to the
+In the first implementation of the algorithm, that was rigorous to the
 pseudocode presented in \cite{fan:rdt} that is build the tree before the
 training, testing with a dataset having different discrete feature, such
 ``Adult'', the tree generated was very big and the time to construct it was
@@ -549,7 +549,7 @@ tree with at least 4060 nodes.}
 
 If the training dataset is not expressive on the possible values
 the attribute can assume, the trained tree may be less accurate.
-Accodingly with the confidence in \ref{formula:confidence} the inverse
+Accordingly with the confidence in \ref{formula:confidence} the inverse
 formula
 \begin{equation}
 \label{formula:N_generate}
@@ -557,11 +557,11 @@ N = \log_{1-\frac{1}{k}}({1 - \emph{confidence}})
 \end{equation}
 allows to calculate the numbers of tree to generate in a dynamic way. In
  particular if the number of examples to train the model is less than
-2000\footnote{Experimental tests coducted by Wei Fan show that this
+2000\footnote{Experimental tests conducted by Wei Fan show that this
 examples history is generally enough to have a good confidence even with a
 low number of tree generated.} the \emph{confidence} is set to 95\%,
 whereas if it is greater is set to 70\%. The tests conducted in all the
-datasets show the efficience of the method in analyzed that improve the
+datasets show the efficiency of the method in analyzed that improve the
 timing without any accuracy loss.
 
 The algorithm is contained in the ``randomDT.py'' Python file and consists
@@ -574,17 +574,17 @@ classification.
 The ``Forest'' class is a virtual representation of the set of trees
 generated. In particular the function ``best\_forest()'' configure the
 number of trees to generate accordingly with \ref{formula:N_generate}
-speeding up the execution, but mainteining the accuracy.
+speeding up the execution, but maintaining the accuracy.
 
 The ``RandomDT'' class represent the Random Decision Tree, in particular
 in the initialization, if is requested a simple node, then a random
 element from the list of attributes given as parameter is chosen and the
 ranges, the second parameter, is on purpose modified: if the attribute is
-continuous then a random threshold is chosend accordingly with
+continuous then a random threshold is chosen accordingly with
 ranges and two sons are generated, whereas in the case of a discrete
 feature, ``threshold'' will contain the possible values it can
-assume, comining from ranges from which will be deleted to avoid a choice
-in the subtree, and will be used to indicize the ``childs'' field.
+assume, coming from ranges from which will be deleted to avoid a choice
+in the subtree, and will be used to indexed the ``children'' field.
 The class offers also the method to retrieve the probability distribution
 as in \ref{formula:probability_tree} from the tree given the tuple to
 classify.
@@ -613,10 +613,18 @@ command executed is:
 ./evaluation.sh adult.arff gain fnlwgt education-num
 \end{verbatim}
 
-In figure \ref{fig:adult_standard} are shown all the
-ouput graphs obtained.  For a better comparison with Decision Tree the
-number of nodes for RDT algorithm is referred to a single tree, randomly
-chosen among the others.
+Another interesting dataset used is the ``Xenon'', this dastaset contains
+samples of the concentration of four isotopes of the Xenon in the
+atmosphere. The dataset is divided into two classes, which say if the
+concentration levels are normal or the footprint of a nuclear weapon test.
+This dataset permits to evaluate the algorithms behaviour on numeric
+values.
+
+In figure \ref{fig:adult_standard} are shown all the output graphs
+obtained.  For a better comparison with Decision Tree the number of nodes
+for RDT algorithm is referred to a single tree, randomly chosen among the
+others.
+
 The \ref{fig:depth} assure a good reduction in terms of nodes and the
 choice has a direct results on the graph about the number of nodes
 generated.
@@ -624,7 +632,7 @@ generated.
 The memory usage for the RDT is very high due to implementation that was
 focused on the comprehension rather the efficiency in order to simplify
 the readability. The huge employment comes from the storing of the
-values of the discrete features in the nodes to index the childs. Since
+values of the discrete features in the nodes to index the children. Since
 there are several trees this facilitation exploits with the number. In the
 test there was built sixteen trees, so the space allocation for a single
 tree, for the maximum case, is:
@@ -713,7 +721,7 @@ one or the other.
 For the RDT algorithm may be improved in particular the Memory usage. At
 the moment each value that a discrete feature may assume is stored in the
 node growing its dimension. A possible easy solution is to index the child
-as the order of possible valueas are passed to the software. The advantage
+as the order of possible values are passed to the software. The advantage
 in memory consumption is considerable.
 
 Another feature to enrich the framework is the option to save the model
@@ -726,7 +734,7 @@ number of algorithm and more parameter should be acquired through it.
 
 \section{Conclusions}
 The two algorithms both generate the tree in a similar way and the tests
-conducted on the datasets considered, reveal the efficience of the solution
+conducted on the datasets considered, reveal the efficiency of the solution
 based on the Probability Theory, but without a greater advantage in the
 average. The Random Decision Tree doesn't need particular additional
 calculus except for some simple comparison, whereas the Decision Tree
