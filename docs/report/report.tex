@@ -613,9 +613,10 @@ command executed is:
 ./evaluation.sh adult.arff gain fnlwgt education-num
 \end{verbatim}
 
-In figure \ref{fig:standard} are shown all the ouput graphs obtained. 
-For a better comparison with Decision Tree the number of nodes for RDT
-algorithm is referred to a single tree, randomly chosen among the others.
+In figure \ref{fig:adult_standard} are shown all the ouput graphs
+obtained.  For a better comparison with Decision Tree the number of nodes
+for RDT algorithm is referred to a single tree, randomly chosen among the
+others.
 The \ref{fig:depth} assure a good reduction in terms of nodes and the
 choice has a direct results on the graph about the number of nodes
 generated.
@@ -708,7 +709,9 @@ number of algorithm and more parameter should be acquired through it.
 The two algorithms both generate the tree in a similar way and the tests
 conducted on the datasets considered, reveal the efficience of the solution
 based on the Probability Theory, but without a greater advantage in the
-average. 
+average. The Random Decision Tree doesn't need particular additional
+calculus except for some simple comparison, whereas the Decision Tree
+founds its job on the Information Gain that require more time.
 
 \bibliographystyle{abbrv}
 \bibliography{report}
