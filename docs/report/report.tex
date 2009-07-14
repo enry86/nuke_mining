@@ -80,8 +80,8 @@ In this work the formal definition of information gain is equation
 IG(Y|X) = H(Y) - H(Y|X)
 \label{infogain}
 \end{equation}
-Where Y represent the class and X the attribute tested and the function H
-is the entropy.
+Where $Y$ represents the class and $X$ the attribute tested and the
+function $H$ is the entropy.
 This function gives a measure of the dispersion of the values in the
 dataset.
 
@@ -107,7 +107,7 @@ the specific conditional entropy $H(X| Y  = V_j)$, defined as the entropy
 of the attribute $X$ computed among the datapoints where the attribute $Y$
 has value $V_j$. 
 
-The second algorithm we choose for the comparison is the Random Decision
+The second algorithm choosen for the comparison is the Random Decision
 Tree presented by Wei Fan in \cite{fan:rdt} which presents the idea to
 build a Decision Tree choosing, at each node, an attribute randomly. The
 choice is bind on the type of the attribute, in particular if the feature
@@ -170,23 +170,22 @@ attention in analyzing the performances of a rather new approach (RDT),
 which uses random choices to build the decision tree, and a more common
 algorithm based on information gain.
 
-In order do to this we need to provide a reliable implementation of both
-the algorithms, which permits us to perform some test and analysis on the
-results acquired.
+In order do to this, a reliable implementation of both the algorithms is
+needed, this permits to ground further analysis on reliable results.
 
 The measures used for comparison are three:
 \begin{itemize}
 \item The time taken to build the tree and eventually perform the
-classification three.
+classification task.
 \item The space used to store the tree structure.
 \item The accuracy obtained in the classification task.
 \end{itemize}
 
 The measure of the space used presented some difficulties, due to the
-dynamic typing feature of the language used, in order to solve this we
-implemented a method which measures the memory used by an object referring
-to the correspondent primitive type of C. This method is explained in
-details in following section.
+dynamic typing feature of the language used. In order to solve this issue
+has been implemented a method which measures the memory used by an object
+referring to the correspondent primitive type of C. This technique is
+explained in details in following section.
 
 The accuracy can be verified in case of cross validation, classifying a
 set of previously known datapoints. This measure can vary depending on the
