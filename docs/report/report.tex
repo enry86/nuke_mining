@@ -613,10 +613,10 @@ command executed is:
 ./evaluation.sh adult.arff gain fnlwgt education-num
 \end{verbatim}
 
-In figure \ref{fig:adult_standard} are shown all the ouput graphs
-obtained.  For a better comparison with Decision Tree the number of nodes
-for RDT algorithm is referred to a single tree, randomly chosen among the
-others.
+In figure \ref{fig:adult_standard} are shown all the
+ouput graphs obtained.  For a better comparison with Decision Tree the
+number of nodes for RDT algorithm is referred to a single tree, randomly
+chosen among the others.
 The \ref{fig:depth} assure a good reduction in terms of nodes and the
 choice has a direct results on the graph about the number of nodes
 generated.
@@ -653,6 +653,12 @@ $$
 About the accuracy the RDT algorithm shows a stable accuracy, little
 better than the Decision algorithm.
 
+In figure \ref{fig:adult-50} are shown the results of the evaluation on
+the same datasets but generating fifty treees. The
+\ref{formula:confidence} assures that the confidence is over 98\%, whereas
+with the sixteeb trees generated  by the algorithm is over 72\%. However
+the accuracy is 
+
 \begin{figure*}
 \label{fig:adult_standard}
 \centering
@@ -685,6 +691,19 @@ and ignoring the attributes: fnlwgt and education-num with 50 trees.}
 \caption{Running the framework on the Adult dataset classifying over
 occupation and ignoring the attributes: fnlwgt and education-num.}
 \end{figure}
+
+\begin{figure*}
+\label{fig:training_st_standard}
+\centering
+\epsfig{file=training_training_st.ps,scale=0.60}
+\epsfig{file=classification_training_st.ps,scale=0.60}
+\epsfig{file=nodes_training_st.ps,scale=0.60}
+\epsfig{file=memory_training_st.ps,scale=0.60}
+\epsfig{file=accuracy_training_st.ps,scale=0.60}
+\caption{Running the framework on the Xenon dataset classifying over B/E
+and ignoring the attribute Index.}
+\end{figure*}
+
 
 \subsection{Improvements}
 There are some improvements that the framework can be submitted.
