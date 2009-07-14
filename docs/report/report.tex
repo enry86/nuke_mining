@@ -109,7 +109,7 @@ has value $V_j$.
 
 The second algorithm we choose for the comparison is the Random Decision
 Tree presented by Wei Fan in \cite{fan:rdt} which presents the idea to
-build a Decision Tree chosing, at each node, an attribute randomly. The
+build a Decision Tree choosing, at each node, an attribute randomly. The
 choice is bind on the type of the attribute, in particular if the feature
 can assume values in a finite set of options it cannot be chosen again in
 the subtree rooted on it. However if the feature is a continuous one, then
@@ -133,7 +133,7 @@ probability to have is:
 Considering the \emph{k} features of the dataset, and the \emph{i}
 classifying attributes, the most diversity among trees is with depth of 
 \begin{equation}
-\ref{fig:depth}
+\label{fig:depth}
 \frac{k}{2} 
 \end{equation}
 since is the maximum value of the combination
@@ -148,14 +148,17 @@ numbers of examples go through it.
 
 At the end of the training the leaves contains the probability distribution
 of each class, in particular for the tree \emph{i}, considering
-\emph{n[y]} the number of instances of class \emph{y}, is:
+\emph{n[y]} the number of instances of class \emph{y} at the node reached
+by x, is:
 \begin{equation}
+\label{formula:probability_tree}
 	P_i(\emph{y}|x) = \frac{n[\emph{y}]}{\sum_\emph{y} n[\emph{y}]}
 \end{equation}
 
 The classification phase retrieves the probability distribution from each
 tree and average on the number of trees generated in the model:
 \begin{equation}
+\label{formula:probability_forest}
 	P(\emph{y}|x) = \frac{1}{N} \sum_{i=1}^N P_i(\emph{y}|x)
 \end{equation}
 
@@ -563,13 +566,15 @@ timing without any accuracy loss.
 
 The algorithm is contained in the ``randomDT.py'' Python file and consists
 of four classes. The main one is ``Classifier'' that allows to interface
-the support class ``class\_mgr.py'' through the methods ``train()'',
-``classify()'' and ``get\_memory()''. Moreover the class is charged to
-remove the attributes to ignore and to perform the classification.
+with the support class ``class\_mgr.py'' through the three default methods
+``train()'', ``classify()'' and ``get\_memory()''. Moreover the class is
+charged to remove the attributes to ignore and to perform the
+classification.
 
 The ``Forest'' class is a virtual representation of the set of trees
 generated. In particular the function ``best\_forest()'' configure the
-number of trees to generate accordingly with \ref{formula:N_generate}.
+number of trees to generate accordingly with \ref{formula:N_generate}
+speeding up the execution, but mainteining the accuracy.
 
 The ``RandomDT'' class represent the Random Decision Tree, in particular
 in the initialization, if is requested a simple node, then a random
@@ -580,7 +585,17 @@ ranges and two sons are generated, whereas in the case of a discrete
 feature, ``threshold'' will contain the possible values it can
 assume, comining from ranges from which will be deleted to avoid a choice
 in the subtree, and will be used to indicize the ``childs'' field.
+The class offers also the method to retrieve the probability distribution
+as in \ref{formula:probability_tree} from the tree given the tuple to
+classify.
 
+The ``Trainer'' class aims to build and train the entire forest of RDTs.
+In particular the procedure ``build\_train()'' manages the retrieving and
+updating of the forest calling the recursive procedure
+``tree\_updating()'' which performs the building of the tree, updating the
+existing nodes. The latter procedure take distinction in generation about
+the two kind of foreseen attributes resulting the bigger slice of code in
+the algorithm.
 
 \section{Experimental Evaluation}
 The tests have been conducted on two different machines, but same
@@ -607,26 +622,38 @@ generated.
 
 The memory usage for the RDT is very high due to implementation that was
 focused on the comprehension rather the efficiency in order to simplify
-the implementation. The huge employment comes from the storing of the
+the readability. The huge employment comes from the storing of the
 values of the discrete features in the nodes to index the childs. Since
 there are several trees this facilitation exploits with the number. In the
 test there was built sixteen trees, so the space allocation for a single
 tree, for the maximum case, is:
 $$ \frac{3500000}{16} Byte = 218750 Byte$$
 And so the single tree is proportional to the one built by the Decision
-Tree.
+Tree. The non-linear trend of the graph is due to the different tree
+structure generated at each step. Since the attribute to test in the node
+is purely a random choice it may happens that one of the nodes near to
+root is a discrete feature with a lot of sons and so the entire tree is
+conditioned by the choice.
 
 The number of trees has impact also in the training time and the
 classification time, of course. In particular for train a tuple the RDT
 algorithm spend on average 6.5\emph{ns} whereas to classify a tuple it
 spends on average 5.6\emph{ns}. It is rather efficient, but considering
-the whole forest of tree the time acquire a significant value.
+the whole forest of tree the time acquire a significant value. Considering
+the test, the number of tuples trained are about 26000, whereas the tuples
+to classify are around 6500:
+$$
+26000 * 6.5\emph{ns} * 16 \sim 27 s
+$$
+$$
+ 6500 * 5.6\emph{ns} * 16 \sim 5.8 s
+$$
 
 About the accuracy the RDT algorithm shows a stable accuracy, little
 better than the Decision algorithm.
 
 \begin{figure*}
-\label{fig:standard}
+\label{fig:adult_standard}
 \centering
 \epsfig{file=training.ps,scale=0.60}
 \epsfig{file=classification.ps,scale=0.60}
@@ -634,8 +661,28 @@ better than the Decision algorithm.
 \epsfig{file=memory.ps,scale=0.60}
 \epsfig{file=accuracy.ps,scale=0.60}
 \caption{Running the framework on the Adult dataset classifying over gain
-and ignoring the attributes: fnlwgt and education-num}
+and ignoring the attributes: fnlwgt and education-num.}
 \end{figure*}
+
+\begin{figure}
+\label{fig:adult_50}
+\centering
+\epsfig{file=training_adult-50.ps,scale=0.60}
+\epsfig{file=nodes_adult-50.ps,scale=0.60}
+\epsfig{file=accuracy_adult-50.ps,scale=0.60}
+\caption{Running the framework on the Adult dataset classifying over gain
+and ignoring the attributes: fnlwgt and education-num with 50 trees.}
+\end{figure}
+
+\begin{figure}
+\label{fig:adult_50}
+\centering
+\epsfig{file=training_adult-occupation.ps,scale=0.60}
+\epsfig{file=classification_adult-occupation.ps,scale=0.60}
+\epsfig{file=accuracy_adult-occupation.ps,scale=0.60}
+\caption{Running the framework on the Adult dataset classifying over
+occupation and ignoring the attributes: fnlwgt and education-num.}
+\end{figure}
 
 \subsection{Improvements}
 There are some improvements that the framework can be submitted.
@@ -655,6 +702,13 @@ Python object structures converting it in a Byte stream.
 
 The script may be optimized to perform the management of an arbitrary
 number of algorithm and more parameter should be acquired through it.
+
+\section{Conclusions}
+The two algorithms both generate the tree in a similar way and the tests
+conducted on the datasets considered, reveal the efficience of the solution
+based on the Probability Theory, but without a greater advantage in the
+average. 
+
 \bibliographystyle{abbrv}
 \bibliography{report}
 \end{document}
