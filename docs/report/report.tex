@@ -650,8 +650,7 @@ algorithm spend on average 6.5\emph{ns} whereas to classify a tuple it
 spends on average 5.6\emph{ns}. It is rather efficient, but considering
 the whole forest of tree the time acquire a significant value. Considering
 the test at 80\%, the number of tuples trained are about 26000, whereas the
-tuples
-to classify are around 6500:
+tuples to classify are around 6500:
 $$
 26000 * 6.5\emph{ns} * 16 \sim 27 s
 $$
@@ -745,6 +744,19 @@ occupation and ignoring the attributes: fnlwgt and education-num.}
 \epsfig{file=accuracy_training_st.ps,scale=0.60}
 \caption{Running the framework on the Xenon dataset classifying over B/E
 and ignoring the attribute Index.}
+\end{figure*}
+
+\begin{figure*}
+\label{fig:training_synt}
+\centering
+\epsfig{file=training_synt.ps,scale=0.60}
+\epsfig{file=classification_synt.ps,scale=0.60}
+\epsfig{file=nodes_synt.ps,scale=0.60}
+\epsfig{file=memory_synt.ps,scale=0.60}
+\epsfig{file=accuracy_synt.ps,scale=0.60}
+\caption{Running the framework on an artificial 
+dataset generated through the tool available on
+\emph{http://www.datasetgenerator.com}classifying over class.}
 \end{figure*}
 
 \subsection{Improvements}
