@@ -6,12 +6,13 @@ evaluation.sh
 < -t training dataset>
 < -o output file>
 < -a class attribute>
-[ -c classification algorithm - generalClass | randomDT ] default
-    generalClass
+[ -c classification algorithm - generalClass[,threshold number] |
+    randomDT[,trees number] ] default: generalClass
 [ -d test dataset ] optional if -x used, if used with -x the training
     dataset won't be split
 [ -x cross validation split percentage ]
-[ -i list of ignored attributesi ]
+[ -i list of ignored attributes ]
+
 
 2) evaluation.sh
 
